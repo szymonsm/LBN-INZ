@@ -2,7 +2,7 @@
 Alerting System for Share Price Drops Using a Language Model and Stock Prices Analysis - Bachelor of Science - Wojciech Kosiuk | Szymon Matuszewski | Michał Mazuryk
 
 ## Folder Description
-* CODE - folder with code
+* CODE - folder with code \newline
     |--news - folder with news analysis
     |--stock - folder with stock prices analysis
     |--data_parser - folder with data parser enabling to get necessary data
