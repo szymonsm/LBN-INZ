@@ -1,0 +1,11 @@
+options:
+  currency:
+    - BTC
+    - ETH
+    - USDT
+    - BNB
+    - XRP
+  time_period:
+    - 1 day
+    - 1 week
+    - 1 month

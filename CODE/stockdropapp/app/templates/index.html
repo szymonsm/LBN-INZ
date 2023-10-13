@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cryptocurrency Analysis App</title>
+</head>
+<body>
+    <h1>Cryptocurrency Analysis App</h1>
+
+    <div>
+        <label for="currency">Choose a currency:</label>
+        <select id="currency" name="currency">
+            {% for currency in currency_options %}
+            <option value="{{ currency }}">{{ currency }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <label for="time_period">Choose a time period:</label>
+        <select id="time_period" name="time_period">
+            {% for time_period in time_period_options %}
+            <option value="{{ time_period }}">{{ time_period }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <button id="notification_toggle">Enable Notifications</button>
+
+    <div id="plot_area">
+        <!-- Interactive plot will be displayed here -->
+    </div>
+
+    <div id="news_area">
+        <!-- Top news will be displayed here -->
+    </div>
+
+    <div id="kpi_area">
+        <!-- Key Performance Indicators will be displayed here -->
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
