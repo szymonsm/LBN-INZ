@@ -1,4 +1,5 @@
-from transformers import pipeline
+# Load model directly
+from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification, BertTokenizer, Trainer, BertForSequenceClassification, TrainingArguments
 import pandas as pd
 import tqdm
 
@@ -7,20 +8,12 @@ class FinBERT:
     """
     Class for FinBERT model that predicts sentiment of a text.
     """
-    def __init__(self) -> None:
-        self.pipe = None
-
-    def initialize_model(self, device: int = -1) -> None:
-        """
-        Initializes the model.
-        
-        :param device: int, -1 for CPU, 0 for GPU
-        """
-        print("Initializing model...")
+    def __init__(self, device: int = -1) -> None:
         self.pipe = pipeline("text-classification", model="ProsusAI/finbert", device=device)
-        print("Model initialized")
+        self.model = AutoModelForSequenceClassification.from_pretrained("ProsusAI/finbert")
+        self.tokenizer = AutoTokenizer.from_pretrained("ProsusAI/finbert")
 
-    def predict_sentiment(self, texts: str | list[str]) -> list:
+    def pipeline_predict_sentiment(self, texts: str | list[str]) -> list:
         """
         Predicts sentiment of a text or list of texts.
         # TODO: add option to return probabilities
@@ -34,7 +27,7 @@ class FinBERT:
             predictions.append(self.pipe(text))
         return predictions
     
-    def add_predictions_to_df(self, df: pd.DataFrame, predictions: list) -> pd.DataFrame:
+    def add_predictions_to_df(df: pd.DataFrame, predictions: list) -> pd.DataFrame:
         """
         Adds predictions to a dataframe.
 
@@ -43,6 +36,8 @@ class FinBERT:
         :return: pd.DataFrame, dataframe with predictions added
         """
         return pd.concat([df,pd.DataFrame(predictions)], axis=1)
+
+    
     
 
 def main() -> None:
@@ -50,12 +45,11 @@ def main() -> None:
     # If you have GPU, set device=0, else set device=-1
     device = -1
 
-    finbert = FinBERT()
-    finbert.initialize_model(device=device)
+    finbert = FinBERT(device)
 
     df = pd.read_csv("DATA/alphavantage/news/CRYPTOBTC/CRYPTOBTC_20230101_20231001_example.csv")
-    predictions = finbert.predict_sentiment(list(df["summary"]))
-    df_new = finbert.add_predictions_to_df(df, predictions)
+    predictions = finbert.pipeline_predict_sentiment(list(df["summary"]))
+    df_new = FinBERT.add_predictions_to_df(df, predictions)
     df_new.to_csv("test.csv")
     
 if __name__ == "__main__":
