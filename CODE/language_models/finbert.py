@@ -8,10 +8,12 @@ class FinBERT:
     """
     Class for FinBERT model that predicts sentiment of a text.
     """
+
+    model = AutoModelForSequenceClassification.from_pretrained("ProsusAI/finbert")
+    tokenizer = AutoTokenizer.from_pretrained("ProsusAI/finbert")
+
     def __init__(self, device: int = -1) -> None:
         self.pipe = pipeline("text-classification", model="ProsusAI/finbert", device=device)
-        self.model = AutoModelForSequenceClassification.from_pretrained("ProsusAI/finbert")
-        self.tokenizer = AutoTokenizer.from_pretrained("ProsusAI/finbert")
 
     def pipeline_predict_sentiment(self, texts: str | list[str]) -> list:
         """
