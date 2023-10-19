@@ -6,9 +6,9 @@ import numpy as np
 import os
 
 class TextClassificationFinetuner:
-    def __init__(self, model_name: str, train_set: Dataset, validation_set: Dataset, output_dir: str = os.getcwd()):
+    def __init__(self, model_name: str, tokenizer_name: str, train_set: Dataset, validation_set: Dataset, output_dir: str = os.getcwd()):
         self.model = AutoModelForSequenceClassification.from_pretrained(model_name)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
         self.train_set = train_set
         self.val_set = validation_set
         self.output_dir = output_dir
