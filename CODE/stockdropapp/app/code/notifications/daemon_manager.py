@@ -1,6 +1,8 @@
 import threading
 import time
-from app.notification_handler import send_notification  # Implement this function
+#from app.code.notifications.notification_handler import send_notification  # Implement this function
+from app.code.notifications.notification_handler import send_notification  # Implement this function
+
 
 # Daemon function for a specific currency and time period
 def daemon(currency, time_period, model):
