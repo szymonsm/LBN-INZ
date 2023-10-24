@@ -22,6 +22,10 @@ class AlphaVantageNewsDownloader:
         self.ticker = ticker
         self.begin_date = datetime.datetime.strptime(begin_date, "%Y%m%d")
         self.end_date = datetime.datetime.strptime(end_date, "%Y%m%d")
+        if self.end_date <= self.begin_date:
+            raise ValueError("End date must be greater than begin date")
+        if self.end_date > datetime.datetime.now():
+            raise ValueError("End date must be less or equal than current date")
         self.days_per_request = days_per_request
 
 
@@ -92,14 +96,44 @@ class AlphaVantageNewsDownloader:
                 "ticker_sentiment_score":[], "ticker_sentiment_label":[],
                 "time_published":[]}
         current_date = self.begin_date
-        while current_date <= self.end_date:
-            data_news = self.download_raw_news_data(current_date, current_date + datetime.timedelta(days=self.days_per_request))
+
+        for _ in range(5):
+
+            # How do I want it to work?
+            # One cannot download data when end_date >= current_date, in that case
+            # I want it to download data from current_date to end_date and return
+            if current_date >= self.end_date:
+                print("End date reached")
+                return dict_news
+            
+            cur_end_date = current_date + datetime.timedelta(days=self.days_per_request)
+
+            if cur_end_date >= self.end_date:
+                cur_end_date = self.end_date
+            
+            data_news = self.download_raw_news_data(current_date, cur_end_date)
+            if data_news=={}:
+                self.end_date = current_date
+                return dict_news
             dict_news_tmp = self.convert_raw_news_data(data_news)
             for key in dict_news:
                 dict_news[key] += dict_news_tmp[key]
-
-            current_date += datetime.timedelta(days=self.days_per_request)
+            
+            current_date = cur_end_date
+        self.end_date = current_date
         return dict_news
+
+        # while current_date < self.end_date:
+        #     data_news = self.download_raw_news_data(current_date, current_date + datetime.timedelta(days=self.days_per_request))
+        #     if data_news=={}:
+        #         self.end_date = current_date
+        #         return dict_news
+        #     dict_news_tmp = self.convert_raw_news_data(data_news)
+        #     for key in dict_news:
+        #         dict_news[key] += dict_news_tmp[key]
+
+        #     current_date += datetime.timedelta(days=self.days_per_request)
+        # return dict_news
     
 
     def save_to_dir(self, dict_news: dict) -> None:
@@ -109,6 +143,10 @@ class AlphaVantageNewsDownloader:
         :param dict_news: dict, news data
         """
         print("Saving...")
+        news_path = os.path.join("DATA", "alphavantage", "news")
+        dir_path = os.path.join(news_path, re.sub(r'[^A-Za-z0-9]+', '', self.ticker))
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
         path = os.path.join("DATA", "alphavantage", "news", re.sub(r'[^A-Za-z0-9]+', '', self.ticker), f"{re.sub(r'[^A-Za-z0-9]+', '', self.ticker)}_{datetime.datetime.strftime(self.begin_date, '%Y%m%d')}_{datetime.datetime.strftime(self.end_date, '%Y%m%d')}.csv")
         pd.DataFrame(dict_news).to_csv(path, index=False)
         print(f"Saved file to path: {path}")
@@ -116,15 +154,20 @@ class AlphaVantageNewsDownloader:
 def main():
     # This is just usage example, not part of the class
     # You can use only one api_key, but there is a limit of 5 requests per minute, so it might be helpful to use more
+    
+    # WARNING!!!: News Data is available only from 01.03.2022 - cannot use data before that
     api_keys = ["BC1SIZ29L8F77M2A"]
-    ticker = "CRYPTO:BTC"
-    begin_date = "20230501"
-    end_date = "20231231"
-    days_per_request = 30
+    ticker = "IBM"
+    begin_date = "20220301"
+    end_date = "20220314"
+    days_per_request = 14
 
 
     avnd = AlphaVantageNewsDownloader(api_keys, ticker, begin_date, end_date, days_per_request)
     dict_news = avnd.download_multiple_data()
+
+    # dict_news = avnd.download_raw_news_data(avnd.begin_date, avnd.end_date)
+    # dict_news = avnd.convert_raw_news_data(dict_news)
     avnd.save_to_dir(dict_news)
     
 if __name__ == "__main__":
