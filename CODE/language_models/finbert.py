@@ -38,7 +38,6 @@ class FinBERT:
         :return: pd.DataFrame, dataframe with predictions added
         """
         return pd.concat([df,pd.DataFrame(predictions)], axis=1)
-
     
     
 
@@ -47,12 +46,14 @@ def main() -> None:
     # If you have GPU, set device=0, else set device=-1
     device = -1
 
-    finbert = FinBERT(device)
+    # finbert = FinBERT(device)
 
-    df = pd.read_csv("DATA/alphavantage/news/CRYPTOBTC/CRYPTOBTC_20230101_20231001_example.csv")
-    predictions = finbert.pipeline_predict_sentiment(list(df["summary"]))
-    df_new = FinBERT.add_predictions_to_df(df, predictions)
-    df_new.to_csv("test.csv")
+    # df = pd.read_csv("DATA/alphavantage/news/CRYPTOBTC/CRYPTOBTC_20230101_20231001_example.csv")
+    # predictions = finbert.pipeline_predict_sentiment(list(df["summary"]))
+    # df_new = FinBERT.add_predictions_to_df(df, predictions)
+    # df_new.to_csv("test.csv")
+
+    FinBERT.model.save_pretrained("MODELS/finbert/")
     
 if __name__ == "__main__":
     main()

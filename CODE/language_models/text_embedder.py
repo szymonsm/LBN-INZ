@@ -17,7 +17,7 @@ class TextEmbedder:
         """
         self.model.eval()
         if isinstance(texts, str):
-            text = [texts]
+            texts = [texts]
         encoded_input = self.tokenizer(texts, padding=True, truncation=True, max_length=max_length, return_tensors='pt')
         with torch.no_grad():
             model_output = self.model(**encoded_input)
@@ -25,3 +25,7 @@ class TextEmbedder:
         embeddings = torch.nn.functional.normalize(embeddings, p=2, dim=1)
         return embeddings
 
+def main():
+    TextEmbedder('BAAI/bge-base-en-v1.5', 'BAAI/bge-base-en-v1.5', -1).model.save_pretrained("MODELS/bge-base-en-v1.5/")
+if __name__ == "__main__":
+    main()
