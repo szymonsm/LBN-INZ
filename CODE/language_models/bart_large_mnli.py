@@ -1,10 +1,14 @@
 from transformers import pipeline
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import tqdm
 
 class BartLargeMNLI:
     """
     Class for BART model that predicts classes of a text. One can use own classes or use the default ones.
     """
 
+    tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large-mnli")
+    model = AutoModelForSequenceClassification.from_pretrained("facebook/bart-large-mnli")
     def __init__(self):
         self.pipe = None
 
@@ -25,6 +29,14 @@ class BartLargeMNLI:
         :param multi_label: bool, whether to predict multiple classes or not
         :return: list, predictions
         """
+        # predictions = []
+        # for text in tqdm.tqdm(texts):
+        #     predictions.append(self.pipe(text, classes, multi_label=multi_label))
         return self.pipe(texts, classes, multi_label=multi_label)
+        # return predictions
     
+def main():
+    BartLargeMNLI.model.save_pretrained("MODELS/bart-large-mnli/")
     
+if __name__ == "__main__":
+    main()
