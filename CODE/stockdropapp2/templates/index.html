@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SD APP</title>
+    <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}"> -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</head>
+<body>
+    <h1>StockDrop App</h1>
+
+    <div>
+        <label for="currency">Choose a currency:</label>
+        <select id="currency" name="currency">
+            {% for currency in currency_options %}
+            <option value="{{ currency }}">{{ currency }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <label for="time_period">Choose a time period:</label>
+        <select id="time_period" name="time_period">
+            {% for time_period in time_period_options %}
+            <option value="{{ time_period }}">{{ time_period }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <button id="notification_toggle" onclick="startDaemon()">Enable Notifications</button>
+    
+    <h2>Running Daemons</h2>
+    <ul id="running_daemons">
+        <!-- Running daemons will be displayed here -->
+    </ul>
+
+    <div id="plot_area">
+        <!-- Interactive plot will be displayed here -->
+    </div>
+
+    <div id="news_area">
+        <!-- Top news will be displayed here -->
+    </div>
+
+    <div id="kpi_area">
+        <!-- Key Performance Indicators will be displayed here -->
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        updateRunningDaemons();  // Update on page load
+    </script>
+</body>
+</html>
