@@ -3,6 +3,9 @@ import requests
 import pandas as pd
 import re
 import os
+from collections import defaultdict, Counter
+
+TICKER_TICKER_NAME = {"AAPL": "Apple", "TSLA": "Tesla"}
 
 
 class MarketauxNewsDownloader:
@@ -10,17 +13,21 @@ class MarketauxNewsDownloader:
     Class for downloading news data from AlphaVantage. API key(s) are required.
     """
 
-    def __init__(self, api_keys: list[str], ticker: str, begin_date: str) -> None:
+    def __init__(self, api_keys: list[str], ticker_name: str, begin_date: str, end_date: str) -> None:
         """
         :param api_keys: list[str], list of API keys
-        :param ticker: str, ticker to download news for (i.e. AAPL)
+        :param ticker_name: str, ticker name to download news for (i.e. Apple, Tesla, etc.)
         :param begin_date: str, begin date in format YYYY-MM-DD
-        :param end_date: str, end date in format
-        :param days_per_request: int, number of days per request (optimal is 30)
+        :param end_date: str, end date in format YYYY-MM-DD
         """
         self.api_keys = api_keys
-        self.ticker = ticker
+        self.ticker_name = ticker_name
         self.begin_date = datetime.datetime.strptime(begin_date, "%Y-%m-%d")
+        self.end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+        if self.end_date <= self.begin_date:
+            raise ValueError("End date must be greater than begin date")
+        if self.end_date > datetime.datetime.now():
+            raise ValueError("End date must be less or equal than current date")
 
 
     def download_raw_news_data(self, begin_date: datetime.date, page: int, sort_key: str = "entity_match_score") -> dict:
@@ -36,13 +43,14 @@ class MarketauxNewsDownloader:
         for api_key in self.api_keys:
             str_date = datetime.datetime.strftime(begin_date, "%Y-%m-%d")
             print(f"Downloading raw news from {str_date}...")
-            url = f"https://api.marketaux.com/v1/news/all?symbols={self.ticker}&language=en&page={page}&published_on={str_date}&sort={sort_key}&api_token={api_key}"
+            url = f"https://api.marketaux.com/v1/news/all?symbols={self.ticker_name}&language=en&page={page}&published_on={str_date}&sort={sort_key}&api_token={api_key}"
             r = requests.get(url)
         
             data_news = r.json()
             if len(data_news.get("data", []))>0:
                 print("Raw news downloaded correctly")
                 return data_news
+            print(data_news)
             print("WARNING: Raw news not downloaded correctly, you might have exceeded API limit")
         return {}
 
@@ -55,76 +63,72 @@ class MarketauxNewsDownloader:
         :return: dict, converted news data
         """
 
-        dict_news = {"title":[], "url":[], "summary":[], "source": [], "topics": [], 
-                     "category_within_source": [], "authors": [], "overall_sentiment_score":[],
-                     "overall_sentiment_label":[], "ticker_relevance_score":[],
-                     "ticker_sentiment_score":[], "ticker_sentiment_label":[],
-                     "time_published":[]}
-        
-        ticker_sentiment_keys = ["ticker_relevance_score", "ticker_sentiment_score", "ticker_sentiment_label"]
+        dict_news = defaultdict(list)
 
-        for event in data_news.get("feed", []):
-            for key in dict_news:
-                if key not in ticker_sentiment_keys:
-                    dict_news[key].append(event.get(key, None))
+        for event in data_news["data"]:
+            for key in event:
+                if isinstance(event[key], str):
+                    dict_news[key].append(event[key])
+                elif key=="relevance_score":
+                    dict_news["relevance_score"].append(event["relevance_score"])
+                elif key=="entities":
+                    entity_dict = defaultdict(list)
+                    for entity in event["entities"]:
+                        if TICKER_TICKER_NAME[self.ticker_name].lower() in entity["name"].lower():
+                            entity_dict["type"].append(entity["type"])
+                            entity_dict["industry"].append(entity["industry"])
+                            entity_dict["match_score"].append(entity["match_score"])
+                            entity_dict["sentiment_score"].append(entity["sentiment_score"])
 
-            for ticker in event["ticker_sentiment"]:
-                if ticker["ticker"]==self.ticker:
-                    for key in ticker_sentiment_keys:
-                        dict_news[key].append(ticker.get(key, None))
-        print(f"Number of added news: {len(data_news.get('feed', []))}")
+                    for keyy in entity_dict:   
+                        if keyy!="type" and keyy!="industry":
+                            dict_news[keyy].append(sum(entity_dict[keyy])/len(entity_dict[keyy]))
+                        else:
+                            c = Counter(entity_dict[keyy])
+                            dict_news[keyy].append(c.most_common(1)[0][0] or -1)
+        print("Number of added news: ", len(dict_news["title"]))
         return dict_news
     
-    def download_multiple_data(self):
+    def download_multiple_data(self, max_num_requests: int = 10, pages: int | list[int] = [1]):
         """
         Downloads data for multiple dates from AlphaVantage.
 
         :return: dict, converted news data
         """
-        dict_news = {"title":[], "url":[], "summary":[], "overall_sentiment_score":[],
-                "overall_sentiment_label":[], "ticker_relevance_score":[],
-                "ticker_sentiment_score":[], "ticker_sentiment_label":[],
-                "time_published":[]}
-        current_date = self.begin_date
+        dict_news = {"uuid": [], "title":[], "description":[], "keywords": [], 
+                     "snippet": [], "url": [], "image_url": [], "language": [], 
+                     "published_at": [], "source": [], "relevance_score": [], 
+                     "type": [], "industry": [], "match_score": [], "sentiment_score": []}
+        if isinstance(pages, int):
+            pages = [pages]
 
-        for _ in range(5):
+        current_date = self.begin_date
+        i = 0 
+
+        while i<max_num_requests:
 
             # How do I want it to work?
             # One cannot download data when end_date >= current_date, in that case
             # I want it to download data from current_date to end_date and return
-            if current_date >= self.end_date:
+            if current_date > self.end_date:
                 print("End date reached")
                 return dict_news
             
-            cur_end_date = current_date + datetime.timedelta(days=self.days_per_request)
-
-            if cur_end_date >= self.end_date:
-                cur_end_date = self.end_date
-            
-            data_news = self.download_raw_news_data(current_date, cur_end_date)
-            if data_news=={}:
-                self.end_date = current_date
-                return dict_news
-            dict_news_tmp = self.convert_raw_news_data(data_news)
-            for key in dict_news:
-                dict_news[key] += dict_news_tmp[key]
-            
-            current_date = cur_end_date
-        self.end_date = current_date
+            for page in pages:
+                data_news = self.download_raw_news_data(current_date, page)
+                if data_news=={}:
+                    self.end_date = current_date
+                    return dict_news
+                dict_news_tmp = self.convert_raw_news_data(data_news)
+                for key in dict_news:
+                    dict_news[key] += dict_news_tmp[key]
+                i += 1
+                if i>=max_num_requests:
+                    break
+            current_date += datetime.timedelta(days=1)
+        self.end_date = min(self.end_date, current_date)
         return dict_news
-
-        # while current_date < self.end_date:
-        #     data_news = self.download_raw_news_data(current_date, current_date + datetime.timedelta(days=self.days_per_request))
-        #     if data_news=={}:
-        #         self.end_date = current_date
-        #         return dict_news
-        #     dict_news_tmp = self.convert_raw_news_data(data_news)
-        #     for key in dict_news:
-        #         dict_news[key] += dict_news_tmp[key]
-
-        #     current_date += datetime.timedelta(days=self.days_per_request)
-        # return dict_news
-    
+ 
 
     def save_to_dir(self, dict_news: dict) -> None:
         """
@@ -133,33 +137,25 @@ class MarketauxNewsDownloader:
         :param dict_news: dict, news data
         """
         print("Saving...")
-        news_path = os.path.join("DATA", "alphavantage", "news")
-        dir_path = os.path.join(news_path, re.sub(r'[^A-Za-z0-9]+', '', self.ticker))
+        news_path = os.path.join("DATA", "marketaux", "news")
+        dir_path = os.path.join(news_path, re.sub(r'[^A-Za-z0-9]+', '', self.ticker_name))
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
-        path = os.path.join("DATA", "alphavantage", "news", re.sub(r'[^A-Za-z0-9]+', '', self.ticker), f"{re.sub(r'[^A-Za-z0-9]+', '', self.ticker)}_{datetime.datetime.strftime(self.begin_date, '%Y%m%d')}_{datetime.datetime.strftime(self.end_date, '%Y%m%d')}.csv")
+        path = os.path.join("DATA", "marketaux", "news", re.sub(r'[^A-Za-z0-9]+', '', self.ticker_name), f"{re.sub(r'[^A-Za-z0-9]+', '', self.ticker_name)}_{datetime.datetime.strftime(self.begin_date, '%Y%m%d')}_{datetime.datetime.strftime(self.end_date, '%Y%m%d')}.csv")
         pd.DataFrame(dict_news).to_csv(path, index=False)
         print(f"Saved file to path: {path}")
 
 def main():
-    pass
     # This is just usage example, not part of the class
-    # You can use only one api_key, but there is a limit of 5 requests per minute, so it might be helpful to use more
-    
-    # WARNING!!!: News Data is available only from 01.03.2022 - cannot use data before that
-    # api_keys = ["YOUR_API_KEY"]
-    # ticker = "IBM"
-    # begin_date = "20220301"
-    # end_date = "20220314"
-    # days_per_request = 14
+    # You can use only one api_key, but there is a limit of 100 requests per day, so it might be helpful to use more
+    api_keys = ["YOUR_API_KEY"]
+    ticker_name = "AAPL"
+    begin_date = "2022-05-01"
+    end_date = "2022-05-05"
 
-
-    # avnd = AlphaVantageNewsDownloader(api_keys, ticker, begin_date, end_date, days_per_request)
-    # dict_news = avnd.download_multiple_data()
-
-    # # dict_news = avnd.download_raw_news_data(avnd.begin_date, avnd.end_date)
-    # # dict_news = avnd.convert_raw_news_data(dict_news)
-    # avnd.save_to_dir(dict_news)
+    downloader = MarketauxNewsDownloader(api_keys, ticker_name, begin_date, end_date)
+    dict_news = downloader.download_multiple_data(max_num_requests=10, pages=[1,2,3])
+    downloader.save_to_dir(dict_news)
     
 if __name__ == "__main__":
     main()
