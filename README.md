@@ -1,4 +1,7 @@
 # LBN-INZ
+
+!!! Jeżeli macie problemy z importem, wrzucić tę linijkę do terminala: $env:PYTHONPATH += "path_to_project_root"
+
 Alerting System for Share Price Drops Using a Language Model and Stock Prices Analysis - Bachelor of Science - Wojciech Kosiuk | Szymon Matuszewski | Michał Mazuryk
 
 ## Folder Description
