@@ -154,12 +154,12 @@ class AlphaVantageNewsDownloader:
 def main():
     # This is just usage example, not part of the class
     # You can use only one api_key, but there is a limit of 5 requests per minute, so it might be helpful to use more
-    
+
     # WARNING!!!: News Data is available only from 01.03.2022 - cannot use data before that
     api_keys = ["BC1SIZ29L8F77M2A"]
-    ticker = "IBM"
-    begin_date = "20220301"
-    end_date = "20220314"
+    ticker = "BA"
+    begin_date = "20230315"
+    end_date = "20230430"
     days_per_request = 14
 
 
