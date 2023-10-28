@@ -1,8 +1,10 @@
 import yaml
 from flask import Flask, render_template, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import inspect
 from flask_migrate import Migrate
 import pandas as pd
+from datetime import datetime
 
 ALLOWED_INTERVALS = [1, 5, 15, 30, 60]
 
@@ -79,6 +81,7 @@ class StockPrice(db.Model):
         self.volume = volume
         self.ticker = ticker
         self.interval = interval
+        self.month = month
 
 running_daemons = {}
 
@@ -107,11 +110,12 @@ def download_data(type, ticker, interval, month):
         # Use your data downloader class to fetch data (replace with actual code)
         downloader = AlphaVantageStockPriceDownloader(api_keys, ticker)
         df = downloader.download_intraday_ticker_data(month, interval)
+        date_format = '%Y-%m-%d %H:%M:%S'
 
         # Store the data in the database
         for _, row in df.iterrows():
             stock_price = StockPrice(
-                timestamp=row['timestamp'],
+                timestamp=datetime.strptime(row['timestamp'], date_format),
                 open=row['open'],
                 high=row['high'],
                 low=row['low'],
@@ -131,6 +135,11 @@ def download_data(type, ticker, interval, month):
     
     return redirect(url_for('index'))
 
+@app.route('/display_tables')
+def display_tables():
+    stock_prices = StockPrice.query.all()
+    columns = [column.key for column in inspect(StockPrice).c]
+    return render_template('display_tables.html', stock_prices=stock_prices, columns=columns)
 
 # @app.route('/start_daemon/<currency>/<time_period>/<model>')
 # def start_daemon_route(currency, time_period, model):

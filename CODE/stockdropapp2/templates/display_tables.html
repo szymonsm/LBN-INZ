@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Prices</title>
+</head>
+<body>
+    <h1>Stock Prices</h1>
+    
+    <table>
+        <tr>
+            {% for column in columns %}
+            <th>{{ column }}</th>
+            {% endfor %}
+        </tr>
+        {% for stock_price in stock_prices %}
+        <tr>
+            <td>{{ stock_price.id }}</td>
+            <td>{{ stock_price.timestamp }}</td>
+            <td>{{ stock_price.open }}</td>
+            <td>{{ stock_price.high }}</td>
+            <td>{{ stock_price.low }}</td>
+            <td>{{ stock_price.close }}</td>
+            <td>{{ stock_price.ticker }}</td>
+            <td>{{ stock_price.interval }}</td>
+            <td>{{ stock_price.month }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
