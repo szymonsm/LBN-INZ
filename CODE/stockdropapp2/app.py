@@ -1,11 +1,13 @@
 import yaml
-from flask import Flask, render_template, render_template, request, redirect, url_for
+from flask import Flask, render_template, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import inspect
 from flask_migrate import Migrate
 import pandas as pd
 from datetime import datetime, timedelta
 import requests
+import plotly.graph_objs as go
+import plotly.express as px
 import re
 import os
 
@@ -305,6 +307,34 @@ def display_tables():
     news = News.query.all()
     columns_news = [column.key for column in inspect(News).c]
     return render_template('display_tables.html', stock_prices=stock_prices, news=news, columns_prices=columns_prices, columns_news=columns_news)
+
+@app.route('/update_plot', methods=['POST'])
+def update_plot():
+    selected_currency = request.json.get('currency')
+    selected_time_period = request.json.get('time_period')
+    selected_data_type = request.json.get('data_type')
+
+    # Modify the query to filter data based on selected criteria
+    data = StockPrice.query.filter_by(
+        ticker=selected_currency,
+        interval=selected_time_period
+    ).with_entities(StockPrice.timestamp, getattr(StockPrice, selected_data_type)).all()
+
+    timestamps = [pd.to_datetime(row[0]) for row in data]
+    price_data = [row[1] for row in data]
+    df = pd.DataFrame(dict(
+        x = timestamps,
+        y = price_data
+    ))
+    print(df.head())
+
+    # Create the Plotly figure
+    # fig = go.Figure(data=go.Scatter(x=timestamps, y=price_data, mode='lines', name=selected_data_type))
+    fig = px.line(df, x='x', y='y', title=f'{selected_currency} {selected_data_type} {selected_time_period}')
+
+    # Convert the Plotly figure to JSON format for AJAX response
+    plot_data = fig.to_json()
+    return jsonify(plot_data)
 
 # @app.route('/start_daemon/<currency>/<time_period>/<model>')
 # def start_daemon_route(currency, time_period, model):
