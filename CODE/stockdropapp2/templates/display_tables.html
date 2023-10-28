@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Stock Prices</title>
+    <title>TABLES in sda_db</title>
 </head>
 <body>
     <h1>Stock Prices</h1>
     
     <table>
         <tr>
-            {% for column in columns %}
+            {% for column in columns_prices %}
             <th>{{ column }}</th>
             {% endfor %}
         </tr>
@@ -23,6 +23,31 @@
             <td>{{ stock_price.ticker }}</td>
             <td>{{ stock_price.interval }}</td>
             <td>{{ stock_price.month }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h1>News</h1>
+    
+    <table>
+        <tr>
+            {% for column in columns_news %}
+            <th>{{ column }}</th>
+            {% endfor %}
+        </tr>
+        {% for news_ in news %}
+        <tr>
+            <td>{{ news_.id }}</td>
+            <td>{{ news_.title }}</td>
+            <td>{{ news_.url }}</td>
+            <td>{{ news_.summary }}</td>
+            <td>{{ news_.overall_sentiment_score }}</td>
+            <td>{{ news_.overall_sentiment_label }}</td>
+            <td>{{ news_.ticker_relevance_score }}</td>
+            <td>{{ news_.ticker_sentiment_score }}</td>
+            <td>{{ news_.ticker_sentiment_label }}</td>
+            <td>{{ news_.time_published }}</td>
+            <td>{{ news_.ticker }}</td>
         </tr>
         {% endfor %}
     </table>
