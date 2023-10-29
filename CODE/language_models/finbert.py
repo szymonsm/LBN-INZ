@@ -16,6 +16,7 @@ class FinBERT:
     tokenizer = AutoTokenizer.from_pretrained("ProsusAI/finbert")
 
     def __init__(self, device: int = -1) -> None:
+        self.name = "finbert"
         self.pipe = pipeline("text-classification", model="ProsusAI/finbert", device=device)
 
     def pipeline_predict_sentiment(self, texts: str | list[str]) -> pd.DataFrame:
