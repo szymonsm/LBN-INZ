@@ -12,7 +12,7 @@ class Vader(SentimentModel):
         sentiment_dict = self.sid_obj.polarity_scores(sentence)
         return sentiment_dict
 
-    def __init__(self) -> None:
+    def __init__(self, device: int = -1) -> None:
         self.name = "vader"
         self.pipe = self.sentiment_scores
 

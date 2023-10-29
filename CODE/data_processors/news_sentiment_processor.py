@@ -1,16 +1,20 @@
 from CODE.language_models.finbert import FinBERT
+from CODE.language_models.vader import Vader
 import pandas as pd
 import os
 import re
 import datetime
+from CODE.language_models.sentiment_model import SentimentModel
 
-class FinbertNewsSentimentProcessor:
+class NewsSentimentProcessor:
 
-    def __init__(self, device: int = -1):
-        print("Loading FinBERT...")
+    NAME_MODEL = {"vader": Vader, "finbert": FinBERT}
+
+    def __init__(self, model_name: str, device: int | None = None):
+        print("Loading sentiment model...")
         self.device = device # If you have GPU, set device=0, else set device=-1
-        self.finbert = FinBERT(device)
-        print("FinBERT loaded.")
+        self.sentiment_model: SentimentModel = self.NAME_MODEL[model_name](device) if device is not None else self.NAME_MODEL[model_name]()
+        print(f"{self.sentiment_model.name} loaded.")
 
     def load_dfs(self, dir_path: str) -> list[pd.DataFrame]:
         """
@@ -26,8 +30,8 @@ class FinbertNewsSentimentProcessor:
         return dfs
 
     def process_single_df(self, df: pd.DataFrame):
-        predictions = self.finbert.pipeline_predict_sentiment(list(df["summary"]))
-        df_new = FinBERT.add_predictions_to_df(df, predictions)
+        predictions = self.sentiment_model.pipeline_predict_sentiment(list(df["summary"]))
+        df_new = SentimentModel.add_predictions_to_df(df, predictions)
         return df_new
     
     def process_multiple_dfs(self, dfs: list[pd.DataFrame]):
@@ -38,8 +42,8 @@ class FinbertNewsSentimentProcessor:
         """
         dfs_new = []
         for df in dfs:
-            predictions = self.finbert.pipeline_predict_sentiment(list(df["summary"]))
-            df_new = FinBERT.add_predictions_to_df(df, predictions)
+            predictions = self.sentiment_model.pipeline_predict_sentiment(list(df["summary"]))
+            df_new = SentimentModel.add_predictions_to_df(df, predictions)
             dfs_new.append(df_new)
         return pd.concat(dfs_new, axis=0)
 
@@ -50,11 +54,11 @@ class FinbertNewsSentimentProcessor:
         :param dict_news: dict, news data
         """
         print("Saving...")
-        news_path = os.path.join("DATA", "finbert", data_provider)
+        news_path = os.path.join("DATA", self.sentiment_model.name, data_provider)
         dir_path = os.path.join(news_path, re.sub(r'[^A-Za-z0-9]+', '', ticker))
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
-        path = os.path.join(dir_path, f"{re.sub(r'[^A-Za-z0-9]+', '', ticker)}_{datetime.datetime.strftime(begin_date, '%Y%m%d')}_{datetime.datetime.strftime(end_date, '%Y%m%d')}_finbert.csv")
+        path = os.path.join(dir_path, f"{re.sub(r'[^A-Za-z0-9]+', '', ticker)}_{datetime.datetime.strftime(begin_date, '%Y%m%d')}_{datetime.datetime.strftime(end_date, '%Y%m%d')}_{self.sentiment_model.name}.csv")
         df.to_csv(path, index=False)
         print(f"Saved file to path: {path}")
 
@@ -75,13 +79,13 @@ def main():
     # This is just usage example, not part of the class
     # If you have GPU, set device=0, else set device=-1
     device = -1
-    avnsp = FinbertNewsSentimentProcessor(device)
+    avnsp = NewsSentimentProcessor("vader", device)
     print("Loading dataframe...")
     # df = pd.read_csv("DATA/alphavantage/news/BA/BA_20230301_20230314.csv")
     # df_new = avnsp.process_single_df(df)
     # avnsp.save_to_dir(df_new, "BA", datetime.date(2023,3,1), datetime.date(2023,3,14))
     df_new = avnsp.process_dir(os.path.join("DATA","alphavantage", "news", "BA"))
-    df_new.to_csv("DATA/finbert/alphavantage/BA/BA_20230301_20230430_finbert.csv")
+    avnsp.save_to_dir(df_new, "BA", datetime.date(2023,3,1), datetime.date(2023,4,30))
     
 
 if __name__ == "__main__":
