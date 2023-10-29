@@ -2,12 +2,10 @@
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification, BertTokenizer, Trainer, BertForSequenceClassification, TrainingArguments
 import pandas as pd
 import tqdm
-import os
-import re
-import datetime
+from CODE.language_models.sentiment_model import SentimentModel
 
 
-class FinBERT:
+class FinBERT(SentimentModel):
     """
     Class for FinBERT model that predicts sentiment of a text.
     """

@@ -1,9 +1,9 @@
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import pandas as pd
 import tqdm
+from CODE.language_models.sentiment_model import SentimentModel
 
-
-class Vader:
+class Vader(SentimentModel):
     """
     Class for Vader model that predicts sentiment of a text.
     """
@@ -29,15 +29,15 @@ class Vader:
             predictions.append(tmp_prediction)
         return pd.DataFrame(predictions)
     
-    def add_predictions_to_df(df: pd.DataFrame, predictions: pd.DataFrame) -> pd.DataFrame:
-        """
-        Adds predictions to a dataframe.
+    # def add_predictions_to_df(df: pd.DataFrame, predictions: pd.DataFrame) -> pd.DataFrame:
+    #     """
+    #     Adds predictions to a dataframe.
 
-        :param df: pd.DataFrame, dataframe to add predictions to
-        :param predictions: list, predictions to add to dataframe
-        :return: pd.DataFrame, dataframe with predictions added
-        """
-        return pd.concat([df, predictions], axis=1)
+    #     :param df: pd.DataFrame, dataframe to add predictions to
+    #     :param predictions: list, predictions to add to dataframe
+    #     :return: pd.DataFrame, dataframe with predictions added
+    #     """
+    #     return pd.concat([df, predictions], axis=1)
     
 
 def main() -> None:
