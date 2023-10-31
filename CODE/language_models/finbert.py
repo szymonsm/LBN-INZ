@@ -35,16 +35,6 @@ class FinBERT(SentimentModel):
         predictions.rename(columns={"label": "finbert_label", "score": "finbert_score"}, inplace=True)
         return predictions
     
-    def add_predictions_to_df(df: pd.DataFrame, predictions: pd.DataFrame) -> pd.DataFrame:
-        """
-        Adds predictions to a dataframe.
-
-        :param df: pd.DataFrame, dataframe to add predictions to
-        :param predictions: list, predictions to add to dataframe
-        :return: pd.DataFrame, dataframe with predictions added
-        """
-        return pd.concat([df, predictions], axis=1)
-    
 
 def main() -> None:
     # This is just usage example, not part of the class
