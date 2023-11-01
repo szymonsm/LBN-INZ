@@ -29,10 +29,11 @@ class BartLargeMNLI:
         :param multi_label: bool, whether to predict multiple classes or not
         :return: list, predictions
         """
-        # predictions = []
-        # for text in tqdm.tqdm(texts):
-        #     predictions.append(self.pipe(text, classes, multi_label=multi_label))
-        return self.pipe(texts, classes, multi_label=multi_label)
+        predictions = []
+        for text in tqdm.tqdm(texts):
+            predictions.append(self.pipe(text, classes, multi_label=multi_label))
+        return predictions
+        # return self.pipe(texts, classes, multi_label=multi_label)
         # return predictions
     
 def main():

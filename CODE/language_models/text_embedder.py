@@ -1,5 +1,6 @@
 from transformers import AutoTokenizer, AutoModel
 import torch
+import pandas as pd
 
 class TextEmbedder:
 
@@ -18,14 +19,22 @@ class TextEmbedder:
         self.model.eval()
         if isinstance(texts, str):
             texts = [texts]
+        print("Started tokenizing...")
         encoded_input = self.tokenizer(texts, padding=True, truncation=True, max_length=max_length, return_tensors='pt')
+        print("Tokenizing done, now computing embeddings...")
         with torch.no_grad():
             model_output = self.model(**encoded_input)
             embeddings = model_output[0][:, 0]
         embeddings = torch.nn.functional.normalize(embeddings, p=2, dim=1)
+        print("Created embeddings")
         return embeddings
 
 def main():
-    TextEmbedder('BAAI/bge-base-en-v1.5', 'BAAI/bge-base-en-v1.5', -1).model.save_pretrained("MODELS/bge-base-en-v1.5/")
+
+    df = pd.read_csv("DATA/alphavantage/news/BA/BA_20230315_20230430.csv")
+    te = TextEmbedder('BAAI/bge-base-en-v1.5', 'BAAI/bge-base-en-v1.5', -1)
+    embeddings = te.encode(list(df["summary"]))
+    torch.save(embeddings, f"DATA/embeddings/BA/BA_20230315_20230430_embeddings.pt")  
+
 if __name__ == "__main__":
     main()
