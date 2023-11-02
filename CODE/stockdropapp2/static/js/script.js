@@ -75,8 +75,16 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 // Update the Plotly plot with the new data
+                const data_json = JSON.parse(data);
                 const plotDiv = document.getElementById('plot-div');
-                Plotly.newPlot(plotDiv, data);
+                console.log(typeof data_json);
+                var trace2 = {
+                    x: data_json['x'].map(dateString => new Date(dateString)),
+                    y: data_json['y'],
+                    type: 'scatter'
+                  };
+                console.log(trace2);
+                Plotly.newPlot(plotDiv, [trace2]);
             });
     }
 

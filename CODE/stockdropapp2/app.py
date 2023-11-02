@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 import requests
 import plotly.graph_objs as go
 import plotly.express as px
+import json
 import re
 import os
 
@@ -320,21 +321,28 @@ def update_plot():
         interval=selected_time_period
     ).with_entities(StockPrice.timestamp, getattr(StockPrice, selected_data_type)).all()
 
-    timestamps = [pd.to_datetime(row[0]) for row in data]
+    #timestamps = [pd.to_datetime(row[0]) for row in data]
+    timestamps = [str(row[0]) for row in data]
     price_data = [row[1] for row in data]
-    df = pd.DataFrame(dict(
-        x = timestamps,
-        y = price_data
-    ))
-    print(df.head())
+    # df = pd.DataFrame(dict(
+    #     x = timestamps,
+    #     y = price_data
+    # ))
+    # print(df.head())
 
-    # Create the Plotly figure
-    # fig = go.Figure(data=go.Scatter(x=timestamps, y=price_data, mode='lines', name=selected_data_type))
-    fig = px.line(df, x='x', y='y', title=f'{selected_currency} {selected_data_type} {selected_time_period}')
+    # # Create the Plotly figure
+    # # fig = go.Figure(data=go.Scatter(x=timestamps, y=price_data, mode='lines', name=selected_data_type))
+    # fig = px.line(df, x='x', y='y', title=f'{selected_currency} {selected_data_type} {selected_time_period}')
+    # # fig.show()
+    # # Convert the Plotly figure to JSON format for AJAX response
+    # plot_data = fig.to_json()
+    # print(plot_data)
 
-    # Convert the Plotly figure to JSON format for AJAX response
-    plot_data = fig.to_json()
-    return jsonify(plot_data)
+    fig_json = json.dumps({'x': timestamps,
+                'y': price_data,
+                'type': 'scatter'})
+    # print(fig_json)
+    return jsonify(fig_json)
 
 # @app.route('/start_daemon/<currency>/<time_period>/<model>')
 # def start_daemon_route(currency, time_period, model):
