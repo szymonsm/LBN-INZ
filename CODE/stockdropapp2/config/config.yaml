@@ -1,14 +1,15 @@
 options:
   currency:
+    - AAPL
     - BTC
     - ETH
     - USDT
     - BNB
     - XRP
   time_period:
-    - 1 day
-    - 1 week
-    - 1 month
+    - 1
+    - 5
+    - 10
 api_keys:
   alphavantage:
     - NQQYUFL94Q5M3YH2

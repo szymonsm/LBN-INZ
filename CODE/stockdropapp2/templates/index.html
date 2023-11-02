@@ -3,6 +3,7 @@
 <head>
     <title>SD APP</title>
     <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}"> -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </head>
 <body>
@@ -33,12 +34,48 @@
         <!-- Running daemons will be displayed here -->
     </ul>
 
-    <div id="plot_area">
-        <!-- Interactive plot will be displayed here -->
+    <div>
+        <label for="data_type">Select Data Type:</label>
+        <select id="data_type" name="data_type">
+            <option value="open">open</option>
+            <option value="high">high</option>
+            <option value="low">low</option>
+            <option value="close">close</option>
+        </select>
     </div>
+    
+    <div id="plot-div">
+        <!-- Plot will be displayed here -->
+        <div class="plot" id="plot1">
+        </div>
+        <div class="plot" id="plot2">
+        </div>
+        <div class="plot" id="plot3">
+        </div>
+        <div class="plot" id="plot4">
+        </div> 
+    </div>
+
 
     <div id="news_area">
         <!-- Top news will be displayed here -->
+        <table class="table" id="news_table">
+            <thead id="news_table_head">
+                <tr>
+                    <th>Title</th>
+                    <th>Summary</th>
+                    <th>Overall Sentiment Score</th>
+                    <th>Overall Sentiment Label</th>
+                    <th>Ticker Relevance Score</th>
+                    <th>Ticker Sentiment Score</th>
+                    <th>Ticker Sentiment Label</th>
+                    <th>Time Published</th>
+                </tr>
+            </thead>
+            <tbody id="news_table_body">
+                <!-- News will be displayed here -->
+            </tbody>
+        </table>
     </div>
 
     <div id="kpi_area">
@@ -47,7 +84,7 @@
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     <script>
-        updateRunningDaemons();  // Update on page load
+        updateRunningDaemons();// Update on page load
     </script>
 </body>
 </html>
