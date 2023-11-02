@@ -52,16 +52,18 @@ function stopDaemon(key) {
     updateRunningDaemons();
 }
 
+// PLOTS SECTION
+
 document.addEventListener('DOMContentLoaded', function () {
     // Function to update the plot
-    function updatePlot() {
+    function updatePlots() {
         // Get the selected currency, time period, and data type
         const selectedCurrency = document.getElementById('currency').value;
         const selectedTimePeriod = document.getElementById('time_period').value;
         const selectedData = document.getElementById('data_type').value;
 
         // Make an AJAX request to the server to fetch updated plot data
-        fetch('/update_plot', {
+        fetch('/update_plots', {
             method: 'POST',
             body: JSON.stringify({
                 currency: selectedCurrency,
@@ -74,17 +76,56 @@ document.addEventListener('DOMContentLoaded', function () {
         })
             .then(response => response.json())
             .then(data => {
-                // Update the Plotly plot with the new data
+                // Update the Plotly plots with the new data
                 const data_json = JSON.parse(data);
-                const plotDiv = document.getElementById('plot-div');
-                console.log(typeof data_json);
-                var trace2 = {
+                var plotDiv = document.getElementById('plot1');
+                // First plot
+                var trace = {
                     x: data_json['x'].map(dateString => new Date(dateString)),
                     y: data_json['y'],
                     type: 'scatter'
                   };
-                console.log(trace2);
-                Plotly.newPlot(plotDiv, [trace2]);
+                var data_plot = [trace];
+                var layout = {
+                    title: 'Stock Price - Basic Plot'
+                  };
+                Plotly.newPlot(plotDiv, data_plot, layout);
+                // Second plot
+                var plotDiv = document.getElementById('plot2');
+                var trace = {
+                    x: data_json['x'].map(dateString => new Date(dateString)),
+                    y: data_json['y'],
+                    type: 'scatter'
+                  };
+                var data_plot = [trace];
+                var layout = {
+                    title: 'Stock Price - Basic Plot 2'
+                  };
+                Plotly.newPlot(plotDiv, data_plot, layout);
+                // Third plot
+                var plotDiv = document.getElementById('plot3');
+                var trace = {
+                    x: data_json['x'].map(dateString => new Date(dateString)),
+                    y: data_json['y'],
+                    type: 'scatter'
+                  };
+                var data_plot = [trace];
+                var layout = {
+                    title: 'Stock Price - Basic Plot 3'
+                  };
+                Plotly.newPlot(plotDiv, data_plot, layout);
+                // Fourth plot
+                var plotDiv = document.getElementById('plot4');
+                var trace = {
+                    x: data_json['x'].map(dateString => new Date(dateString)),
+                    y: data_json['y'],
+                    type: 'scatter'
+                  };
+                var data_plot = [trace];
+                var layout = {
+                    title: 'Stock Price - Basic Plot 4'
+                  };
+                Plotly.newPlot(plotDiv, data_plot, layout);
             });
     }
 
@@ -94,10 +135,68 @@ document.addEventListener('DOMContentLoaded', function () {
     const time_periodSelect = document.getElementById('time_period');
 
     // Add an event listener to capture the change event
-    dataTypeSelect.addEventListener('change', updatePlot);
-    currencySelect.addEventListener('change', updatePlot);
-    time_periodSelect.addEventListener('change', updatePlot);
+    dataTypeSelect.addEventListener('change', updatePlots);
+    currencySelect.addEventListener('change', updatePlots);
+    time_periodSelect.addEventListener('change', updatePlots);
 
     // Initialize the plot when the page loads
-    updatePlot();
+    updatePlots();
+});
+
+//NEWS SECTION
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Function to update the plot
+    function updateNews() {
+        // Get the selected currency, time period, and data type
+        const selectedCurrency = document.getElementById('currency').value;
+
+        // Make an AJAX request to the server to fetch updated plot data
+        fetch('/update_news', {
+            method: 'POST',
+            body: JSON.stringify({
+                currency: selectedCurrency,
+            }),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Update the Plotly plots with the new data
+                const data_json = JSON.parse(data);
+                console.log(data_json);
+                // for key in data_json write news info in table format in index.html id news_area
+                var table = document.getElementById("news_table_body");
+                table.innerHTML = '';
+                for (var i = 0; i < 5; i++) {
+                    var row = table.insertRow(i);
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    var cell3 = row.insertCell(2);
+                    var cell4 = row.insertCell(3);
+                    var cell5 = row.insertCell(4);
+                    var cell6 = row.insertCell(5);
+                    var cell7 = row.insertCell(6);
+                    var cell8 = row.insertCell(7);
+                    cell1.innerHTML = '<a href="' + data_json['url'][i] + '" target="_blank">' + data_json['title'][i] + '</a>'
+                    cell2.innerHTML = data_json['summary'][i];
+                    cell3.innerHTML = data_json['overall_sentiment_score'][i];
+                    cell4.innerHTML = data_json['overall_sentiment_label'][i];
+                    cell5.innerHTML = data_json['ticker_relevance_score'][i];
+                    cell6.innerHTML = data_json['ticker_sentiment_score'][i];
+                    cell7.innerHTML = data_json['ticker_sentiment_label'][i];
+                    cell8.innerHTML = data_json['time_published'][i];
+                }
+            });
+    }
+
+    // Get the data type select box element
+    const currencySelect = document.getElementById('currency');
+
+    // Add an event listener to capture the change event
+    currencySelect.addEventListener('change', updateNews);
+
+    // Initialize the plot when the page loads
+    updateNews();
 });
