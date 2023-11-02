@@ -77,8 +77,12 @@ class NewsSentimentProcessor:
         """
         Combines news data with stock price data.
 
-        :param df: pd.DataFrame, news data
+        :param df_news: pd.DataFrame, news data
         :param df_stock: pd.DataFrame, stock price data
+        :param days: list[int], list of days of prices from which data should be added
+        :param news_date_col: str, name of news date column
+        :param stock_date_col: str, name of stock date column
+        :param date_format: str, date format in news data
         :return: pd.DataFrame, combined dataframe
         """
         df_news['date'] = pd.to_datetime(df_news[news_date_col], format=date_format).dt.date
