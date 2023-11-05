@@ -158,9 +158,9 @@ def main():
     # WARNING!!!: News Data is available only from 01.03.2022 - cannot use data before that
     api_keys = ["BC1SIZ29L8F77M2A"]
     ticker = "BA"
-    begin_date = "20230315"
-    end_date = "20230430"
-    days_per_request = 14
+    begin_date = "20221013"
+    end_date = "20221031"
+    days_per_request = 21
 
 
     avnd = AlphaVantageNewsDownloader(api_keys, ticker, begin_date, end_date, days_per_request)

@@ -28,6 +28,17 @@ class TextEmbedder:
         embeddings = torch.nn.functional.normalize(embeddings, p=2, dim=1)
         print("Created embeddings")
         return embeddings
+    
+    def add_predictions_to_df(df: pd.DataFrame, predictions: torch.tensor) -> pd.DataFrame:
+        """
+        Adds predictions to a dataframe.
+
+        :param df: pd.DataFrame, dataframe to add predictions to
+        :param predictions: torch.tensor, embeddings to add to dataframe
+        :return: pd.DataFrame, dataframe with predictions added
+        """
+        df["embeddings"] = predictions.tolist()
+        return df
 
 def main():
 
