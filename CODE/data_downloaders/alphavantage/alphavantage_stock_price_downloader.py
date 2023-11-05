@@ -1,4 +1,7 @@
 import pandas as pd
+import os
+import re
+import datetime
 
 ALLOWED_INTERVALS = [1, 5, 15, 30, 60]
 
@@ -47,20 +50,52 @@ class AlphaVantageStockPriceDownloader:
             if len(df_daily)>2: 
                 return df_daily
         return None 
+    
+    def save_to_dir(self, df_price: pd.DataFrame, type: str = "daily", month: str | None = None, interval: int | None = None) -> None:
+        """
+        Saves price data to a directory.
+
+        :param df_price: pd.DataFrame, price data
+        :param type: str, type of data (daily or intraday)
+        :param month: str, month in format YYYY-MM
+        :param interval: int, interval in minutes (1, 5, 15, 30, 60)
+        """
+        assert type in ["daily", "intraday"], "Type must be either daily or intraday"
+        if type == "intraday":
+            assert month is not None, "Month must be specified for intraday data"
+            assert interval is not None, "Interval must be specified for intraday data"
+
+        print("Saving...")
+        path = os.path.join("DATA", "alphavantage", type)
+        dir_path = os.path.join(path, re.sub(r'[^A-Za-z0-9]+', '', self.ticker))
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+
+        if type == "intraday":
+            path = os.path.join(dir_path, f"{re.sub(r'[^A-Za-z0-9]+', '', self.ticker)}_intraday_{interval}_{datetime.datetime.strftime(month, '%Y%m%d')}.csv")
+        else:
+            path = os.path.join(dir_path, f"{re.sub(r'[^A-Za-z0-9]+', '', self.ticker)}_daily_full.csv")
+        df_price.to_csv(path, index=False)
+        print(f"Saved file to path: {path}")
 
 
 def main():
     # This is just usage example, not part of the class
-    api_keys = ["YOUR_API_KEY_1", "YOUR_API_KEY_2"]
-    ticker = "IBM"
-    months = ["2023-0"+str(i) for i in range(1,10)]
-    interval = 15
+    api_keys = ["BC1SIZ29L8F77M2A"]
+    # ticker = "BA"
+    # months = ["2023-0"+str(i) for i in range(1,10)]
+    # interval = 15
 
+    # avspd = AlphaVantageStockPriceDownloader(api_keys, ticker)
+    # for month in months:
+    #     df = avspd.download_intraday_ticker_data(month, interval)
+    #     if df is not None:
+    #         df.to_csv(f"DATA/alphavantage/intraday/{ticker}/{ticker}_intraday_{interval}_{month}.csv", index=False)
+
+    ticker = "BA"
     avspd = AlphaVantageStockPriceDownloader(api_keys, ticker)
-    for month in months:
-        df = avspd.download_intraday_ticker_data(month, interval)
-        if df is not None:
-            df.to_csv(f"DATA/alphavantage/intraday/{ticker}/{ticker}_intraday_{interval}_{month}.csv", index=False)
+    df = avspd.download_daily_ticker_data()
+    df.to_csv(f"DATA/alphavantage/daily/{ticker}_daily_full.csv", index=False)
 
     # df = avspd.download_daily_ticker_data()
     # df.to_csv(f"{ticker}_daily_full.csv")

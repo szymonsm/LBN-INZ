@@ -1,6 +1,7 @@
 from transformers import AutoTokenizer, AutoModel
 import torch
 import pandas as pd
+import os
 
 class TextEmbedder:
 
@@ -41,11 +42,17 @@ class TextEmbedder:
         return df
 
 def main():
-
-    df = pd.read_csv("DATA/alphavantage/news/BA/BA_20230315_20230430.csv")
     te = TextEmbedder('BAAI/bge-base-en-v1.5', 'BAAI/bge-base-en-v1.5', -1)
-    embeddings = te.encode(list(df["summary"]))
-    torch.save(embeddings, f"DATA/embeddings/BA/BA_20230315_20230430_embeddings.pt")  
+    
+    dir_path = os.path.join("DATA", "alphavantage", "news", "BA")
+    for path in os.listdir(dir_path):
+        if path.endswith(".csv"):
+            print(f"Processing {path}")
+            df = pd.read_csv(os.path.join(dir_path, path))
+            embeddings = te.encode(list(df["summary"]))
+            torch.save(embeddings, f"DATA/embeddings/BA/{path[:-4]}_embeddings.pt") 
+            print(f"Saved {path[:-4]}_embeddings.pt")
+
 
 if __name__ == "__main__":
     main()
