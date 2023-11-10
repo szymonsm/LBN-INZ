@@ -1,3 +1,8 @@
+import yfinance as yf
+import pandas as pd
+import datetime
+import numpy as np
+
 class YFinanseDownloader:
     """
     Class for downloading stock info from yahoofinanse. API key(s) are NOT required.
