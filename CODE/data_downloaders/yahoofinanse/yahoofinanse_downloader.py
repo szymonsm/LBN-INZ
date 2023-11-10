@@ -3,9 +3,9 @@ import pandas as pd
 import datetime
 import numpy as np
 
-class YFinanseDownloader:
+class YFinanceDownloader:
     """
-    Class for downloading stock info from yahoofinanse. API key(s) are NOT required.
+    Class for downloading stock info from yahoofinance. API keys are NOT required.
     """
 
     def __init__(self, ticker_list: list[str], begin_date: str, end_date: str) -> None:
@@ -25,7 +25,7 @@ class YFinanseDownloader:
     def download_ticker(self, ticker: str, begin_date: datetime.date,
                         end_date: datetime.date) -> pd.DataFrame:
             """
-            Downloads data about ticker from YahooFinanse.
+            Downloads data about ticker from YahooFinance.
             
             :param ticker: string, ticker short name
             :param begin_date: datetime.date, begin date
@@ -45,7 +45,7 @@ class YFinanseDownloader:
 
     def create_df(self) -> pd.DataFrame:
           """
-          Creates dataframe about tickers from YahooFinanse.
+          Creates dataframe about tickers from YahooFinance.
           
           :return: pd.DataFrame
           """
@@ -73,7 +73,7 @@ def main():
     begin_date = "20230801"
     end_date = "20231029"
 
-    yfd = YFinanseDownloader(ticker_list,begin_date,end_date)
+    yfd = YFinanceDownloader(ticker_list,begin_date,end_date)
     
     df = yfd.create_df()
 
