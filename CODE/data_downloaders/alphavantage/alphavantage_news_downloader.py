@@ -98,10 +98,6 @@ class AlphaVantageNewsDownloader:
         current_date = self.begin_date
 
         for _ in range(5):
-
-            # How do I want it to work?
-            # One cannot download data when end_date >= current_date, in that case
-            # I want it to download data from current_date to end_date and return
             if current_date >= self.end_date:
                 print("End date reached")
                 return dict_news
