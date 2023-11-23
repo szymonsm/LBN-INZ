@@ -1,6 +1,7 @@
 from transformers import pipeline
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import tqdm
+import pandas as pd
 
 class BartLargeMNLI:
     """
@@ -29,11 +30,26 @@ class BartLargeMNLI:
         :param multi_label: bool, whether to predict multiple classes or not
         :return: list, predictions
         """
-        # predictions = []
-        # for text in tqdm.tqdm(texts):
-        #     predictions.append(self.pipe(text, classes, multi_label=multi_label))
-        return self.pipe(texts, classes, multi_label=multi_label)
+        predictions = []
+        for text in tqdm.tqdm(texts):
+            predictions.append(self.pipe(text, classes, multi_label=multi_label))
+        return predictions
+        # return self.pipe(texts, classes, multi_label=multi_label)
         # return predictions
+    
+    def add_predictions_to_df(df: pd.DataFrame, predictions: pd.DataFrame, classes: list[str]) -> pd.DataFrame:
+        """
+        Adds predictions to a dataframe.
+
+        :param df: pd.DataFrame, dataframe to add predictions to
+        :param predictions: list, predictions to add to dataframe
+        :return: pd.DataFrame, dataframe with predictions added
+        """
+        df_bart = pd.json_normalize(predictions)
+        df_bart = pd.concat([df_bart.drop(['scores'], axis=1), df_bart['scores'].apply(pd.Series)], axis=1)
+        df_bart.rename(columns=dict(zip(range(len(classes)),classes)), inplace=True)
+        df_bart = df_bart.drop(['labels'], axis=1)
+        return pd.concat([df, df_bart], axis=1)
     
 def main():
     BartLargeMNLI.model.save_pretrained("MODELS/bart-large-mnli/")

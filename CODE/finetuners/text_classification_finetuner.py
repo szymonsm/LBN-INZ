@@ -68,5 +68,3 @@ class TextClassificationFinetuner:
         trainer = self.finetune_model()
         self.save_model(trainer)
         return trainer
-
-      

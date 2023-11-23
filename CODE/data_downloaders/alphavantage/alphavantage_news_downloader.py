@@ -98,10 +98,6 @@ class AlphaVantageNewsDownloader:
         current_date = self.begin_date
 
         for _ in range(5):
-
-            # How do I want it to work?
-            # One cannot download data when end_date >= current_date, in that case
-            # I want it to download data from current_date to end_date and return
             if current_date >= self.end_date:
                 print("End date reached")
                 return dict_news
@@ -158,9 +154,9 @@ def main():
     # WARNING!!!: News Data is available only from 01.03.2022 - cannot use data before that
     api_keys = ["BC1SIZ29L8F77M2A"]
     ticker = "BA"
-    begin_date = "20230315"
-    end_date = "20230430"
-    days_per_request = 14
+    begin_date = "20221013"
+    end_date = "20221031"
+    days_per_request = 21
 
 
     avnd = AlphaVantageNewsDownloader(api_keys, ticker, begin_date, end_date, days_per_request)
