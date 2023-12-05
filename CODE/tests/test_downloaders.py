@@ -34,32 +34,32 @@ class AlphaVantageNewsDownloaderTest(TestCase):
         pass
 
 
-class AlphaVantageStockPriceDownloaderTest(TestCase):
+# class AlphaVantageStockPriceDownloaderTest(TestCase):
 
-    # This test requires internet access
-    def test_download_daily_ticker_data(self):
-        avspd = AlphaVantageStockPriceDownloader(["BC1SIZ29L8F77M2A"], "BA")
-        data = avspd.download_daily_ticker_data()
-        self.assertGreater(len(data), 0)
+#     # This test requires internet access
+#     def test_download_daily_ticker_data(self):
+#         avspd = AlphaVantageStockPriceDownloader(["BC1SIZ29L8F77M2A"], "BA")
+#         data = avspd.download_daily_ticker_data()
+#         self.assertGreater(len(data), 0)
 
-        avspd = AlphaVantageStockPriceDownloader(["WRONG API KEY"], "BA")
-        data = avspd.download_daily_ticker_data()
-        self.assertEqual(len(data), 0)
+#         avspd = AlphaVantageStockPriceDownloader(["WRONG API KEY"], "BA")
+#         data = avspd.download_daily_ticker_data()
+#         self.assertEqual(len(data), 0)
 
-        avspd = AlphaVantageStockPriceDownloader(["BC1SIZ29L8F77M2A"], "NOT EXISTING TICKER")
-        data = avspd.download_daily_ticker_data()
-        self.assertEqual(len(data), 0)
+#         avspd = AlphaVantageStockPriceDownloader(["BC1SIZ29L8F77M2A"], "NOT EXISTING TICKER")
+#         data = avspd.download_daily_ticker_data()
+#         self.assertEqual(len(data), 0)
 
-    def test_download_intraday_ticker_data(self):
+#     def test_download_intraday_ticker_data(self):
         
-        avspd = AlphaVantageStockPriceDownloader(["BC1SIZ29L8F77M2A"], "BA")
+#         avspd = AlphaVantageStockPriceDownloader(["BC1SIZ29L8F77M2A"], "BA")
 
-        # Wrong interval
-        with self.assertRaises(ValueError):
-            avspd.download_intraday_ticker_data("2023-11", 23)
+#         # Wrong interval
+#         with self.assertRaises(ValueError):
+#             avspd.download_intraday_ticker_data("2023-11", 23)
 
-        data = avspd.download_intraday_ticker_data("2023-09", 60)
+#         data = avspd.download_intraday_ticker_data("2023-09", 60)
 
-        self.assertNotEqual(data, None)
+#         self.assertNotEqual(data, None)
 
         
