@@ -4,8 +4,10 @@ import pandas as pd
 import re
 import os
 from collections import defaultdict, Counter
+from datetime import timedelta
+import sys
 
-TICKER_TICKER_NAME = {"AAPL": "Apple", "TSLA": "Tesla"}
+TICKER_TICKER_NAME = {"AAPL": "Apple", "TSLA": "Tesla", "BA": "Boeing", "NFLX": "Netflix", "BTCUSD": "Bitcoin USD"}
 
 
 class MarketauxNewsDownloader:
@@ -21,6 +23,7 @@ class MarketauxNewsDownloader:
         :param end_date: str, end date in format YYYY-MM-DD
         """
         self.api_keys = api_keys
+        self.main_api_key_idx = 0
         self.ticker_name = ticker_name
         self.begin_date = datetime.datetime.strptime(begin_date, "%Y-%m-%d")
         self.end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d")
@@ -40,18 +43,28 @@ class MarketauxNewsDownloader:
         :return: dict, raw news data
         """
 
-        for api_key in self.api_keys:
-            str_date = datetime.datetime.strftime(begin_date, "%Y-%m-%d")
-            print(f"Downloading raw news from {str_date}...")
-            url = f"https://api.marketaux.com/v1/news/all?symbols={self.ticker_name}&language=en&page={page}&published_on={str_date}&sort={sort_key}&api_token={api_key}"
-            r = requests.get(url)
-        
-            data_news = r.json()
-            if len(data_news.get("data", []))>0:
-                print("Raw news downloaded correctly")
-                return data_news
-            print(data_news)
-            print("WARNING: Raw news not downloaded correctly, you might have exceeded API limit")
+        #for api_key in self.api_keys:
+        str_date = datetime.datetime.strftime(begin_date, "%Y-%m-%d")
+        print(f"Downloading raw news from {str_date}...")
+        url = f"https://api.marketaux.com/v1/news/all?symbols={self.ticker_name}&language=en&page={page}&published_on={str_date}&sort={sort_key}&api_token={self.api_keys[self.main_api_key_idx]}"
+        r = requests.get(url)
+    
+        data_news = r.json()
+        if len(data_news.get("data", []))>0:
+            print("Raw news downloaded correctly")
+            return data_news
+        if "error" in data_news and data_news["error"]["code"]=="rate_limit_reached":
+            self.main_api_key_idx += 1
+            if self.main_api_key_idx>=len(self.api_keys):
+                print("All api keys exceeded rate limit")
+                sys.exit("All API keys exceeded rate limit")
+            else:
+                print(f"New api key used: {self.api_keys[self.main_api_key_idx]}")
+                return self.download_raw_news_data(begin_date, page, sort_key)
+            # print("WARNING: Raw news not downloaded correctly, you might have exceeded API limit")
+            # return {}
+        #print(data_news)
+        print("WARNING: Probably day without news.")
         return {}
 
 
@@ -106,10 +119,6 @@ class MarketauxNewsDownloader:
         i = 0 
 
         while i<max_num_requests:
-
-            # How do I want it to work?
-            # One cannot download data when end_date >= current_date, in that case
-            # I want it to download data from current_date to end_date and return
             if current_date > self.end_date:
                 print("End date reached")
                 return dict_news
@@ -125,6 +134,9 @@ class MarketauxNewsDownloader:
                 i += 1
                 if i>=max_num_requests:
                     break
+                if len(dict_news_tmp["title"]) <3:
+                    break
+
             current_date += datetime.timedelta(days=1)
         self.end_date = min(self.end_date, current_date)
         return dict_news
@@ -148,14 +160,45 @@ class MarketauxNewsDownloader:
 def main():
     # This is just usage example, not part of the class
     # You can use only one api_key, but there is a limit of 100 requests per day, so it might be helpful to use more
-    api_keys = ["YOUR_API_KEY"]
-    ticker_name = "AAPL"
-    begin_date = "2022-05-01"
-    end_date = "2022-05-05"
+    api_keys = ["UuxWMNP8XfDuppbNinpvBYOfedJouSYMEwjEUwOq", "gk0849Cv6DTfsMAmzp13qp7Q09ULfgnNWHd8R3LS", "TEDETqt2eka8HbEXr9iHafaQaaC8yntxJ4kqg5DV", "1A6BIomNHkYfwuVEXkS06zz2CmVRtOYKy451cj8k", "DklBEXK6POj73EGZuTAYMN9EEHBLMWe9Flgenz0P", "TXIDyS8bYmUYUXLkSZIJ27HMPn4G1XrjxmgRONYk", "d01yoYY7lebNcRsFB4jLWLJoYsO1ANSay1frZeCc", "FOlRHekaaKXDO8OzQCm3OhFXcn9AN87InF6poZye", "SbVF63j1kq1oLd8xLrXb1c9NePopE78XlqukJLlR", "n7Z3u8RoupEccoFTSilWh9S8XpTvFVJidSZS7rfR"]
+    # ticker_name = "BA"
+    # begin_date = "2022-09-01"
+    # end_date = "2022-09-30"
+
+    # downloader = MarketauxNewsDownloader(api_keys, ticker_name, begin_date, end_date)
+    # dict_news = downloader.download_multiple_data(max_num_requests=100, pages=[1, 2, 3])
+    # downloader.save_to_dir(dict_news)
+    # while downloader.end_date < datetime.datetime.strptime(end_date, "%Y-%m-%d"):
+    #     downloader.begin_date = downloader.end_date + timedelta(days=1)
+    #     downloader.end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+    #     dict_news = downloader.download_multiple_data(max_num_requests=100, pages=[1, 2, 3])
+    #     downloader.save_to_dir(dict_news)
+
+    # api_keys = ["VhQlodkXbHbZE0vUS6eQhYwdSvfgQSP4NjLrVACo",
+    #             "B12FwLhv80TqecMLNRdaiMIZiTPOKzhxMY2tLwWY",
+    #             "m0Q3p7snIwLxxVueQjY2QkORIUKvMrDB4CLy7xi8",
+    #             "65tlBN9OAjlbR2EGMOb97BnTtf1axhOUw8YFSiZZ",
+    #             "6IGEFIcvpdJiSdmTH99BSn8AVfftuOnHAwI8vkZX",
+    #             "07O7pQpMO2hruWQmU6S8LJncJrD9tYoQEa94mjL7",
+    #             "7jpIvaNVSfbzKgSjBJUjKLGOkheDqlXXHow0hqV2",
+    #             "ru9csB3TBwCjpfyUzw4f3hE2vB88y8iiER0dpXj3",
+    #             "egwiukhKomAbje2lrrKL1z1ECN8ienRm6aBd5Wsp",
+    #             "9oxxLUTAiMSXceql18HZ4Xz1CKhwa2bVtEMuqIAQ",
+    #             "UuxWMNP8XfDuppbNinpvBYOfedJouSYMEwjEUwOq"]
+    api_keys = ["SlbjFRNM8piSyVQsa1XaE6HzPQ2L1p1qMZPNsCHy"]
+    ticker_name = "BA"
+    begin_date = "2022-12-26"
+    end_date = "2022-12-31"
 
     downloader = MarketauxNewsDownloader(api_keys, ticker_name, begin_date, end_date)
-    dict_news = downloader.download_multiple_data(max_num_requests=10, pages=[1,2,3])
+    dict_news = downloader.download_multiple_data(max_num_requests=100, pages=[1, 2, 3])
     downloader.save_to_dir(dict_news)
+    while downloader.end_date < datetime.datetime.strptime(end_date, "%Y-%m-%d"):
+        downloader.begin_date = downloader.end_date + timedelta(days=1)
+        downloader.end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+        dict_news = downloader.download_multiple_data(max_num_requests=100, pages=[1, 2, 3])
+        downloader.save_to_dir(dict_news)
+
     
 if __name__ == "__main__":
     main()

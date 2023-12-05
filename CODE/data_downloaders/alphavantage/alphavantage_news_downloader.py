@@ -38,8 +38,8 @@ class AlphaVantageNewsDownloader:
         :param limit: int, limit of news per request (max is 1000)
         :return: dict, raw news data
         """
-
-        assert limit<=1000, "AlphaVantage supports news limit up to 1000 per request"
+        if limit > 1000:
+            raise(ValueError("AlphaVantage supports news limit up to 1000 per request"))
 
         begin_date_f = datetime.datetime.strftime(begin_date, "%Y%m%d")
         end_date_f = datetime.datetime.strftime(end_date, "%Y%m%d")

@@ -29,8 +29,8 @@ class NewsSentimentProcessor:
                 dfs.append(df)
         return dfs
 
-    def process_single_df(self, df: pd.DataFrame):
-        predictions = self.sentiment_model.pipeline_predict_sentiment(list(df["summary"]))
+    def process_single_df(self, df: pd.DataFrame, text_col: str = "summary") -> pd.DataFrame:
+        predictions = self.sentiment_model.pipeline_predict_sentiment(list(df[text_col]))
         df_new = SentimentModel.add_predictions_to_df(df, predictions)
         return df_new
     
