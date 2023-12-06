@@ -179,14 +179,23 @@ document.addEventListener('DOMContentLoaded', function () {
                     var cell6 = row.insertCell(5);
                     var cell7 = row.insertCell(6);
                     var cell8 = row.insertCell(7);
+                    var cell9 = row.insertCell(8);
+                    var cell10 = row.insertCell(9);
+                    var cell11 = row.insertCell(10);
+                    var cell12 = row.insertCell(11);
+                    // uuid,title,description,keywords,snippet,url,image_url,language,published_at,source,relevance_score,type,industry,match_score,sentiment_score
                     cell1.innerHTML = '<a href="' + data_json['url'][i] + '" target="_blank">' + data_json['title'][i] + '</a>'
-                    cell2.innerHTML = data_json['summary'][i];
-                    cell3.innerHTML = data_json['overall_sentiment_score'][i];
-                    cell4.innerHTML = data_json['overall_sentiment_label'][i];
-                    cell5.innerHTML = data_json['ticker_relevance_score'][i];
-                    cell6.innerHTML = data_json['ticker_sentiment_score'][i];
-                    cell7.innerHTML = data_json['ticker_sentiment_label'][i];
-                    cell8.innerHTML = data_json['time_published'][i];
+                    cell2.innerHTML = data_json['description'][i];
+                    cell3.innerHTML = data_json['keywords'][i];
+                    cell4.innerHTML = data_json['snippet'][i];
+                    cell5.innerHTML = data_json['language'][i];
+                    cell6.innerHTML = data_json['published_at'][i];
+                    cell7.innerHTML = data_json['source'][i];
+                    cell8.innerHTML = data_json['relevance_score'][i];
+                    cell9.innerHTML = data_json['type'][i];
+                    cell10.innerHTML = data_json['industry'][i];
+                    cell11.innerHTML = data_json['match_score'][i];
+                    cell12.innerHTML = data_json['sentiment_score'][i];
                 }
             });
     }

@@ -15,15 +15,14 @@
         {% for stock_price in stock_prices %}
         <tr>
             <td>{{ stock_price.id }}</td>
-            <td>{{ stock_price.timestamp }}</td>
+            <td>{{ stock_price.date }}</td>
             <td>{{ stock_price.open }}</td>
             <td>{{ stock_price.high }}</td>
             <td>{{ stock_price.low }}</td>
             <td>{{ stock_price.close }}</td>
+            <td>{{ stock_price.adj_close }}</td>
             <td>{{ stock_price.volume }}</td>
             <td>{{ stock_price.ticker }}</td>
-            <td>{{ stock_price.interval }}</td>
-            <td>{{ stock_price.month }}</td>
         </tr>
         {% endfor %}
     </table>
@@ -39,16 +38,21 @@
         {% for news_ in news %}
         <tr>
             <td>{{ news_.id }}</td>
+            <td>{{ news_.uuid }}</td>
             <td>{{ news_.title }}</td>
+            <td>{{ news_.description }}</td>
+            <td>{{ news_.keywords }}</td>
+            <td>{{ news_.snippet }}</td>
             <td>{{ news_.url }}</td>
-            <td>{{ news_.summary }}</td>
-            <td>{{ news_.overall_sentiment_score }}</td>
-            <td>{{ news_.overall_sentiment_label }}</td>
-            <td>{{ news_.ticker_relevance_score }}</td>
-            <td>{{ news_.ticker_sentiment_score }}</td>
-            <td>{{ news_.ticker_sentiment_label }}</td>
-            <td>{{ news_.time_published }}</td>
-            <td>{{ news_.ticker }}</td>
+            <td>{{ news_.image_url }}</td>
+            <td>{{ news_.language }}</td>
+            <td>{{ news_.published_at }}</td>
+            <td>{{ news_.source }}</td>
+            <td>{{ news_.relevance_score }}</td>
+            <td>{{ news_.type }}</td>
+            <td>{{ news_.industry }}</td>
+            <td>{{ news_.match_score }}</td>
+            <td>{{ news_.sentiment_score }}</td>
         </tr>
         {% endfor %}
     </table>
