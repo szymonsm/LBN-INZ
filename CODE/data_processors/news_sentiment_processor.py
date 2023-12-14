@@ -73,6 +73,26 @@ class NewsSentimentProcessor:
         df_new = self.process_multiple_dfs(dfs)
         return df_new
     
+    def combine_with_stock_price(df_news: pd.DataFrame, df_stock: pd.DataFrame, days: list[int], news_date_col: str = 'time_published', stock_date_col: str = 'timestamp', date_format: str = '%Y%m%dT%H%M%S') -> pd.DataFrame:
+        """
+        Combines news data with stock price data.
+
+        :param df_news: pd.DataFrame, news data
+        :param df_stock: pd.DataFrame, stock price data
+        :param days: list[int], list of days of prices from which data should be added
+        :param news_date_col: str, name of news date column
+        :param stock_date_col: str, name of stock date column
+        :param date_format: str, date format in news data
+        :return: pd.DataFrame, combined dataframe
+        """
+        df_news['date'] = pd.to_datetime(df_news[news_date_col], format=date_format).dt.date
+        df_stock['date'] = pd.to_datetime(df_stock[stock_date_col]).dt.date
+
+        merged_df = pd.merge(df_news, df_stock.add_prefix('this_'), on='date')
+        for day in days:
+            merged_df[f'date_{day}'] = df_news[news_date_col] + pd.to_timedelta(day, unit='D')
+            merged_df = pd.merge(merged_df, df_stock.add_prefix(f'{day}day_'), left_on=f'date_{day}', right_on=f'{day}day_date')
+        merged_df
 
     
 def main():
