@@ -2,7 +2,41 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import numpy as np
+from scripts.essentials import *
 
+def plot_lagged_correlations(df, target):
+    # Calculate correlations for all columns and target
+    correlations = {}
+    for col in df.columns:
+        if col != target:
+            correlations[col] = calculate_lagged_correlation(col, target, df)
+
+    # Plot correlations for each column
+    for col, corr in correlations.items():
+        corr.plot(x='Lag', y='Correlation', kind='scatter')
+        plt.title(f'Correlation between {col} and {target}')
+        plt.show()
+
+def check_and_plot_correlation(df, target_col,method_='spearman'):
+    # Calculate the correlation matrix
+    corr_matrix = df.corr(method= method_)
+
+    # Get the correlation values for the target column
+    target_corr = corr_matrix[target_col]
+
+    # Remove the correlation value of the target column with itself
+    target_corr = target_corr.drop(target_col)
+
+    # Sort the correlation values in descending order
+    target_corr = target_corr.sort_values(ascending=False)
+
+    # Plot the correlation values
+    plt.figure(figsize=(10, 6))
+    target_corr.plot(kind='bar')
+    plt.title(f'Correlation with {target_col}')
+    plt.xlabel('Features')
+    plt.ylabel('Correlation')
+    plt.show()
 
 def plot_series(target_col, cols_to_plot, date_col, data_org,start_date=None, end_date=None):
     """

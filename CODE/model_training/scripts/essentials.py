@@ -5,6 +5,38 @@ from ta.momentum import RSIIndicator, StochasticOscillator, ROCIndicator
 from ta.volume import VolumeWeightedAveragePrice
 
 from sklearn.preprocessing import MinMaxScaler
+import warnings
+
+warnings.filterwarnings("ignore")
+
+def calculate_lagged_correlation(col1, col2, df, lag=14):
+    """
+    Calculate time-series correlation between two columns across a specified time lag.
+
+    Parameters:
+    - col1 (str): Name of the first column.
+    - col2 (str): Name of the second column.
+    - df (pd.DataFrame): The input DataFrame.
+    - lag (int): Maximum lag for which to calculate correlation.
+
+    Returns:
+    - pd.Series: Series containing correlations for each lag.
+    """
+    # Create an empty DataFrame to store correlations
+    correlations = pd.DataFrame(columns=['Lag', 'Correlation'])
+
+    # Iterate over lags and calculate correlation for each lag shift
+    for i in range(1, lag + 1):
+        shifted_col2 = df[col2].shift(i)
+        correlation = df[col1].corr(shifted_col2)
+
+        # Save lag and correlation in the DataFrame
+
+        correlations = pd.concat([correlations, pd.DataFrame({'Lag': [i], 'Correlation': [correlation]})], axis=0)
+
+         
+
+    return correlations
 
 def replace_with_0(df,columns_to_fill):
   """
