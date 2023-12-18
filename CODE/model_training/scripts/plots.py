@@ -152,7 +152,7 @@ def plot_density(vector, title='Density Plot', xlabel='Values'):
     # Show the plot
     plt.show()
 
-def plot_actual_vs_predicted(y_actual, y_pred, y_base, title='Actual vs Predicted', xlabel='Index', ylabel='Values'):
+def plot_actual_vs_predicted(y_actual, y_pred, y_base, idx, title='Actual vs Predicted', xlabel='Index', ylabel='Values'):
     """
     Plot the actual vs predicted values.
 
@@ -169,6 +169,9 @@ def plot_actual_vs_predicted(y_actual, y_pred, y_base, title='Actual vs Predicte
     plt.figure(figsize=(10, 6))
     plt.plot(y_actual, label='Actual', marker='o')
     plt.plot(y_pred, label='Predicted', linestyle='--', marker='o')
+    # put idx over the marker of y_pred
+    for i, id in enumerate(idx):
+        plt.annotate(id, (i, y_pred[i]))
     plt.plot(y_base, label='Baseline', linestyle='--', marker='o')
     plt.title(title)
     plt.xlabel(xlabel)

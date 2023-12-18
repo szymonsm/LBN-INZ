@@ -1,0 +1,177 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics import mean_squared_error
+import optuna
+from neuralforecast.losses.pytorch import DistributionLoss, MQLoss, RMSE
+from neuralforecast.models import FEDformer, NBEATS, NHITS
+from neuralforecast import NeuralForecast
+from functools import partial
+
+FINAL_COLS = ['mean_future', 'mean_influential','mean_trustworthy', 'mean_clickbait','norm_rsi_14', 'norm_rsi_gspc_14', 'norm_slowk_14']
+NAME_MODEL = {"NBEATS": NBEATS, "NHITS": NHITS, "FEDformer": FEDformer}
+
+def create_trial_params_fedformer(trial):
+    input_size = trial.suggest_int('input_size', 2, 10)
+    
+    scaler_type = trial.suggest_categorical('scaler_type', ['standard'])
+    learning_rate = trial.suggest_loguniform('learning_rate', 1e-5, 1e-1)
+
+    model_params = {"input_size": input_size, "max_steps": 300, "hist_exog_list": FINAL_COLS,
+      "learning_rate": learning_rate, "scaler_type": scaler_type, "random_seed": 1}
+
+    return model_params
+
+
+# TODO - żeby korzystać z NBEATS lub NHITS, trzeba uzupełnić odpowiednią funkcję, tak jak wyżej jest dla FEDformer
+def create_trial_params_nbeats(trial):
+    input_size = trial.suggest_int('input_size', 2, 20)
+    
+    n_blocks_season = trial.suggest_int('n_blocks_season', 1, 3)
+    n_blocks_trend = trial.suggest_int('n_blocks_trend', 1, 3)
+    n_blocks_identity = trial.suggest_int('n_blocks_ident', 1, 3)
+    
+    mlp_units_n = trial.suggest_categorical('mlp_units', [32, 64, 128])
+    num_hidden = trial.suggest_int('num_hidden', 1, 3)
+    
+    n_harmonics = trial.suggest_int('n_harmonics', 1, 5)
+    n_polynomials = trial.suggest_int('n_polynomials', 1, 5)
+    
+    scaler_type = trial.suggest_categorical('scaler_type', ['standard'])
+    learning_rate = trial.suggest_loguniform('learning_rate', 1e-5, 1e-1)
+    
+    
+    n_blocks = [n_blocks_season, n_blocks_trend, n_blocks_identity]
+    mlp_units=[[mlp_units_n, mlp_units_n]]*num_hidden
+    
+    model_params = {"input_size": input_size, "max_steps": 300, "hist_exog_list": FINAL_COLS,
+      "stack_types": ['seasonality', 'trend', 'identity'], "mlp_units": mlp_units, "n_blocks": n_blocks,
+      "n_harmonics": n_harmonics, "n_polynomials": n_polynomials, "learning_rate": learning_rate,
+      "scaler_type": scaler_type, 'random_seed': 1 }
+    
+    return model_params
+
+def create_trial_params_nhits(trial):
+    input_size = trial.suggest_int('input_size', 2, 20)
+    
+    n_blocks_season = trial.suggest_int('n_blocks_season', 1, 3)
+    n_blocks_trend = trial.suggest_int('n_blocks_trend', 1, 3)
+    n_blocks_identity = trial.suggest_int('n_blocks_ident', 1, 3)
+    
+    mlp_units_n = trial.suggest_categorical('mlp_units', [32, 64, 128])
+    num_hidden = trial.suggest_int('num_hidden', 1, 3)
+    
+    n_harmonics = trial.suggest_int('n_harmonics', 1, 5)
+    n_polynomials = trial.suggest_int('n_polynomials', 1, 5)
+    
+    scaler_type = trial.suggest_categorical('scaler_type', ['standard'])
+    learning_rate = trial.suggest_loguniform('learning_rate', 1e-5, 1e-1)
+    
+    
+    n_blocks = [n_blocks_season, n_blocks_trend, n_blocks_identity]
+    mlp_units=[[mlp_units_n, mlp_units_n]]*num_hidden
+    
+    model_params = {"input_size": input_size, "max_steps": 300, "hist_exog_list": FINAL_COLS,
+      "stack_types": ['seasonality', 'trend', 'identity'], "mlp_units": mlp_units, "n_blocks": n_blocks,
+      "n_harmonics": n_harmonics, "n_polynomials": n_polynomials, "learning_rate": learning_rate,
+      "scaler_type": scaler_type, 'random_seed': 1}
+    
+    return model_params
+
+
+
+def pipeline_train_predict(models, train_set, val_set, horizon, loss_func, model_name):
+    losses = []
+    predictions = None
+    val_set_begin = val_set.iloc[0]['ds']
+
+    train_set_tmp = train_set
+    last_index = horizon
+    val_set_tmp = val_set.iloc[:last_index]
+    modelID = 0
+    while train_set_tmp.iloc[0]['ds'] < val_set_begin and len(val_set_tmp) == horizon:
+        print(len(train_set_tmp), len(val_set_tmp))
+        loss, predictions_tmp = train(models, train_set_tmp, val_set_tmp, loss_func, model_name)
+        predictions_tmp['modelID'] = modelID
+        modelID += 1
+        losses.append(loss)
+        predictions = predictions.append(predictions_tmp) if predictions is not None else predictions_tmp
+
+        # Update sets
+        # append first horizon rows to train_set_tmp from val_set_tmp
+        train_set_tmp = train_set_tmp.append(val_set_tmp)
+        # make val_set_tmp start from the next day after the last day of train_set_tmp
+        val_set_tmp = val_set.iloc[last_index:last_index+horizon]
+        last_index = last_index + horizon
+    return np.mean(losses), predictions
+
+
+def train(models: list, train_set: pd.DataFrame, val_set: pd.DataFrame, metric_function: callable, model_name: str):
+    """
+    Function to generalize training process between different NeuralForecast models.
+
+    :param models: list of NeuralForecast models with their parameters
+    :param train_set: training set
+    :param val_set: validation set
+    :param metric_function: metric function to evaluate the model
+    :param model_name: name of the model - predictions are in column named after model
+
+    :return: tuple of metric value on validation set and predictions on validation set
+    """
+    model = NeuralForecast(models=models, freq='D')
+    model.fit(train_set)
+
+    p =  model.predict().reset_index()
+    p = p.merge(val_set[['ds','unique_id', 'y']].reset_index(), on=['ds', 'unique_id'], how='left')
+
+    return metric_function(p['y'], p[model_name]), p
+
+def create_trial_params(trial, model_name: str):
+    if model_name == "FEDformer":
+      return create_trial_params_fedformer(trial)
+    if model_name == "NBEATS":
+      return create_trial_params_nbeats(trial)
+    if model_name == "NHITS":
+      return create_trial_params_nhits(trial)     
+
+
+def objective(trial, train_set, val_set, model_name: str, horizon: int, loss_func: callable):
+    model_params = create_trial_params(trial, model_name)
+    print(model_params)
+    # n_blocks = [prms['n_blocks_season'], prms['n_blocks_trend'], prms['n_blocks_ident']]
+    # mlp_units=[[prms['mlp_units'], prms['mlp_units']]*prms['num_hidden']]
+    models = [NAME_MODEL[model_name](h=horizon, loss=RMSE(),**model_params)]
+
+    losses, predictions = pipeline_train_predict(models, train_set, val_set, horizon, loss_func, model_name)
+    return np.mean(losses)
+
+
+def main():
+   
+    # Przykłady użycia
+
+    # Tunowanie hiperparametrów
+    study = optuna.create_study(direction='minimize')
+    study.optimize(partial(objective, train_set=train_set, val_set=val_set, 
+                    model_name="FEDformer", horizon=14,loss_func=mean_squared_error), n_trials=5)
+    
+    # Predykcja na podstawie najlepszych hiperparametrów
+    horizon = 14
+    models = [FEDformer(
+                    h=horizon,
+                    #loss=DistributionLoss(distribution='Normal', level=[90]),
+                    max_steps=100,
+                    futr_exog_list=FINAL_COLS,
+                    input_size=study.best_params['input_size'],
+                    scaler_type=study.best_params['scaler_type'],
+                    learning_rate=study.best_params['learning_rate'],
+                    random_seed=1
+                    )]
+    loss, predictions = train(models, train_set, val_set, mean_squared_error, "FEDformer")
+    print("MSE: ", loss)
+
+    # Pipeline, który robi predykcję batchami co ileś dni, ustalane przez horizon
+    loss, predictions = pipeline_train_predict(models, train_set, val_set, horizon, mean_squared_error, "FEDformer")
+
+if __name__ == "__main__":
+    main()
