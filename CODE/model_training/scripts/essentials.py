@@ -84,7 +84,7 @@ def create_merged_df(df_f, df_n, prefix):
     df_2.drop(columns=["Unnamed: 0","day"], inplace=True)
     return df_2
 
-def calculate_technical_indicators(stock_df, date_col, open_col, high_col, low_col, close_col, volume_col, gspc_close):
+def calculate_technical_indicators(stock_df, date_col, open_col, high_col, low_col, close_col, volume_col, gspc_close,is_with_weekend=False):
     """
     Calculate additional technical indicators for a stock DataFrame.
 
@@ -118,15 +118,27 @@ def calculate_technical_indicators(stock_df, date_col, open_col, high_col, low_c
 
     df['norm_roc_14'] =(ROCIndicator(df[close_col], window=14, fillna=True).roc() )/100
     
-    df['log_return_1'] = np.log(df[close_col]) - np.log(df[close_col]).shift(1)
-    df['log_return_5'] = np.log(df[close_col]) - np.log(df[close_col]).shift(5)
-    df['log_return_10'] = np.log(df[close_col]) - np.log(df[close_col]).shift(10)
-    df['log_return_20'] = np.log(df[close_col]) - np.log(df[close_col]).shift(20)
+    if is_with_weekend:
+        df['log_return_1'] = np.log(df[close_col]) - np.log(df[close_col]).shift(1)
+        df['log_return_7'] = np.log(df[close_col]) - np.log(df[close_col]).shift(7)
+        df['log_return_14'] = np.log(df[close_col]) - np.log(df[close_col]).shift(14)
+        df['log_return_28'] = np.log(df[close_col]) - np.log(df[close_col]).shift(28)
 
-    df['log_return_gspc_1'] = np.log(df[gspc_close]) - np.log(df[gspc_close]).shift(1)
-    df['log_return_gspc_5'] = np.log(df[gspc_close]) - np.log(df[gspc_close]).shift(5)
-    df['log_return_gspc_10'] = np.log(df[gspc_close]) - np.log(df[gspc_close]).shift(10)
-    df['log_return_gspc_20'] = np.log(df[gspc_close]) - np.log(df[gspc_close]).shift(20)
+        df['log_return_gspc_1'] = np.log(df[gspc_close]) - np.log(df[gspc_close]).shift(1)
+        df['log_return_gspc_7'] = np.log(df[gspc_close]) - np.log(df[gspc_close]).shift(7)
+        df['log_return_gspc_14'] = np.log(df[gspc_close]) - np.log(df[gspc_close]).shift(14)
+        df['log_return_gspc_28'] = np.log(df[gspc_close]) - np.log(df[gspc_close]).shift(28)
+
+    else:
+        df['log_return_1'] = np.log(df[close_col]) - np.log(df[close_col]).shift(1)
+        df['log_return_5'] = np.log(df[close_col]) - np.log(df[close_col]).shift(5)
+        df['log_return_10'] = np.log(df[close_col]) - np.log(df[close_col]).shift(10)
+        df['log_return_20'] = np.log(df[close_col]) - np.log(df[close_col]).shift(20)
+
+        df['log_return_gspc_1'] = np.log(df[gspc_close]) - np.log(df[gspc_close]).shift(1)
+        df['log_return_gspc_5'] = np.log(df[gspc_close]) - np.log(df[gspc_close]).shift(5)
+        df['log_return_gspc_10'] = np.log(df[gspc_close]) - np.log(df[gspc_close]).shift(10)
+        df['log_return_gspc_20'] = np.log(df[gspc_close]) - np.log(df[gspc_close]).shift(20)
 
     df['daily_variation'] = (df[high_col] - df[low_col]) / df[open_col]
     df['high_close_pressure'] = (df[high_col] - df[close_col]) / df[open_col]
