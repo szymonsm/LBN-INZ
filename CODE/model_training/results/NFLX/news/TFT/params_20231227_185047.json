@@ -1,0 +1,1 @@
+{"h": 2, "loss": "MSE()", "max_steps": 10, "hist_exog_list": ["finbert_Score", "bart_Score", "vader_Score", "mean_influential", "mean_trustworthy"], "input_size": 4, "learning_rate": 0.0024172598840406607, "hidden_size": 4, "scaler_type": "standard", "random_seed": 1}

@@ -14,10 +14,11 @@ def create_trial_params_tft(trial):
     #input_size = trial.suggest_categorical('input_size', [1,2,3])
     learning_rate = trial.suggest_loguniform('learning_rate', 1e-5, 1e-1)
     hidden_size = trial.suggest_categorical('hidden_size', [4, 8, 12, 16, 20, 24, 28, 32])
-    dropout = trial.suggest_float('dropout', 0.0, 0.5)
-    attn_dropout = trial.suggest_float('attn_dropout', 0.0, 0.5)
+    #dropout = trial.suggest_float('dropout', 0.0, 0.5)
+    #attn_dropout = trial.suggest_float('attn_dropout', 0.0, 0.5)
 
-    model_params = {"learning_rate": learning_rate, "hidden_size": hidden_size, "dropout": dropout, "attn_dropout": attn_dropout}
+    # model_params = {"learning_rate": learning_rate, "hidden_size": hidden_size, "dropout": dropout, "attn_dropout": attn_dropout}
+    model_params = {"learning_rate": learning_rate, "hidden_size": hidden_size}
 
     return model_params
 
@@ -40,6 +41,7 @@ def create_trial_params_nbeats(trial):
     
     
     n_blocks = [n_blocks_season, n_blocks_trend, n_blocks_identity]
+    #n_blocks = [n_blocks_trend, n_blocks_identity]
     mlp_units=[[mlp_units_n, mlp_units_n]]*num_hidden
     
     model_params = {
@@ -61,30 +63,32 @@ def create_trial_params_nhits(trial):
     n_pool_kernel_size2 = trial.suggest_int('n_pool_kernel_size2', 1, 3)
     n_pool_kernel_size3 = trial.suggest_int('n_pool_kernel_size3', 1, 3)
 
-    n_freq_downsample1 = trial.suggest_int('n_freq_downsample1', 1, 5)
-    n_freq_downsample2 = trial.suggest_int('n_freq_downsample2', 1, 5)
-    n_freq_downsample3 = trial.suggest_int('n_freq_downsample3', 1, 5)
+    #n_freq_downsample1 = trial.suggest_int('n_freq_downsample1', 1, 5)
+    #n_freq_downsample2 = trial.suggest_int('n_freq_downsample2', 1, 5)
+    #n_freq_downsample3 = trial.suggest_int('n_freq_downsample3', 1, 5)
     
     learning_rate = trial.suggest_loguniform('learning_rate', 1e-5, 1e-1)
-    dropout_prob_theta = trial.suggest_float('dropout_prob_theta', 0.0, 0.5)
+    #dropout_prob_theta = trial.suggest_float('dropout_prob_theta', 0.0, 0.5)
     
     
     n_blocks = [n_blocks1, n_blocks2, n_blocks3]
     mlp_units=[[mlp_units_n, mlp_units_n]]*3
     n_pool_kernel_size = [n_pool_kernel_size1, n_pool_kernel_size2, n_pool_kernel_size3]
-    n_freq_downsample = [n_freq_downsample1, n_freq_downsample2, n_freq_downsample3]
+    #n_freq_downsample = [n_freq_downsample1, n_freq_downsample2, n_freq_downsample3]
     stack_types = ['identity', 'identity', 'identity']
     
+    # model_params = {"mlp_units": mlp_units, "n_blocks": n_blocks, "stack_types": stack_types,
+    # "learning_rate": learning_rate, "dropout_prob_theta": dropout_prob_theta, "n_pool_kernel_size": n_pool_kernel_size,
+    # "n_freq_downsample": n_freq_downsample}
     model_params = {"mlp_units": mlp_units, "n_blocks": n_blocks, "stack_types": stack_types,
-    "learning_rate": learning_rate, "dropout_prob_theta": dropout_prob_theta, "n_pool_kernel_size": n_pool_kernel_size,
-    "n_freq_downsample": n_freq_downsample}
+    "learning_rate": learning_rate, "n_pool_kernel_size": n_pool_kernel_size}
     
     return model_params
 
 
 
 def pipeline_train_predict(models, train_set, val_set, horizon, loss_func, model_name):
-    losses = []
+    #losses = []
     predictions = None
     val_set_begin = val_set.iloc[0]['ds']
 
@@ -94,10 +98,11 @@ def pipeline_train_predict(models, train_set, val_set, horizon, loss_func, model
     modelID = 0
     while train_set_tmp.iloc[0]['ds'] < val_set_begin and len(val_set_tmp) == horizon:
         #print(len(train_set_tmp), len(val_set_tmp))
-        loss, predictions_tmp = train(models, train_set_tmp, val_set_tmp, loss_func, model_name)
+        #val_set_tmp = val_set_tmp[val_set_tmp['y'].notnull()]
+        predictions_tmp = train(models, train_set_tmp, val_set_tmp, model_name)
         predictions_tmp['modelID'] = modelID
         modelID += 1
-        losses.append(loss)
+        #losses.append(loss)
         predictions = predictions.append(predictions_tmp) if predictions is not None else predictions_tmp
 
         # Update sets
@@ -109,11 +114,13 @@ def pipeline_train_predict(models, train_set, val_set, horizon, loss_func, model
     # Add sequence ID and reset index
     predictions['sequenceID'] = predictions.index
     predictions.reset_index(drop=True, inplace=True)
+    predictions = predictions[predictions['y'].notnull()]
+    loss = loss_func(predictions['y'], predictions[f'{model_name}'])
 
-    return np.mean(losses), predictions
+    return loss, predictions
 
 
-def train(models: list, train_set: pd.DataFrame, val_set: pd.DataFrame, metric_function: callable, model_name: str):
+def train(models: list, train_set: pd.DataFrame, val_set: pd.DataFrame, model_name: str):
     """
     Function to generalize training process between different NeuralForecast models.
 
@@ -130,8 +137,14 @@ def train(models: list, train_set: pd.DataFrame, val_set: pd.DataFrame, metric_f
 
     p =  model.predict().reset_index()
     p = p.merge(val_set[['ds','unique_id', 'y']].reset_index(), on=['ds', 'unique_id'], how='left')
-
-    return metric_function(p['y'], p[f'{model_name}-median']), p
+    # remove rows where y is null
+    # p = p[p['y'].notnull()]
+    # print(p['y'])
+    # print(p[f'{model_name}-median'])
+    # print(len(p['y']), len(p[f'{model_name}-median']))
+    # print(metric_function(p['y'], p[f'{model_name}-median']))
+    # return metric_function(p['y'], p[f'{model_name}-median']), p
+    return p
 
 def create_trial_params(trial, model_name: str):
     if model_name == "TFT":
@@ -148,8 +161,12 @@ def objective(trial, train_set, val_set, loss, model_name: str, horizon: int, hi
     # mlp_units=[[prms['mlp_units'], prms['mlp_units']]*prms['num_hidden']]
     models = [NAME_MODEL[model_name](h=horizon, input_size=2*horizon, loss=loss, hist_exog_list=hist_exog_list, random_seed=random_seed, scaler_type=scaler_type, max_steps=max_steps, **model_params)]
 
-    losses, predictions = pipeline_train_predict(models, train_set, val_set, horizon, loss_func, model_name)
-    return np.mean(losses)
+    loss, predictions = pipeline_train_predict(models, train_set, val_set, horizon, loss_func, model_name)
+    # select rows where predictions['sequenceID'] == horizon-1
+    # p = predictions[predictions['sequenceID'] == horizon-1]
+    # l = loss_func(p['y'], p[f'{model_name}-median'])
+    # return l
+    return loss
 
 
 def main():
