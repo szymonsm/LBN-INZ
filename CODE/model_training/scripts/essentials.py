@@ -60,6 +60,34 @@ def forward_fill_columns(df,columns_to_ffill):
   df[columns_to_ffill] = df[columns_to_ffill].transform('ffill')
   return df
 
+def split_data(df, date_col, split_date_val, split_date_test, start_date_train=None):
+    """
+    Split the DataFrame into train, validation, and test sets based on specified dates.
+
+    Parameters:
+    - df (pd.DataFrame): The input DataFrame.
+    - date_col (str): Column name for the date.
+    - split_date_val (str): Date for splitting between validation and test sets.
+    - split_date_test (str): Date for splitting between train and validation sets.
+    - start_date_train (str or None): Start date for training data. If None, the earliest date in the DataFrame is used.
+
+    Returns:
+    - pd.DataFrame, pd.DataFrame, pd.DataFrame: Train, validation, and test sets.
+    """
+    # Ensure the DataFrame is sorted by date
+    df.sort_values(by=date_col, inplace=True)
+
+    # Determine the start date for training data
+    if start_date_train is None:
+        start_date_train = df[date_col].min()
+
+    # Split the data into train, validation, and test sets
+    train_data = df[(df[date_col] >= start_date_train) & (df[date_col] < split_date_val)]
+    val_data = df[(df[date_col] >= split_date_val) & (df[date_col] < split_date_test)]
+    test_data = df[df[date_col] >= split_date_test]
+
+    return train_data, val_data, test_data
+
 def create_merged_df(df_f, df_n, prefix):
     cols_to_keep=['Date', '^GSPC_Close', '^GSPC_Volume','EURUSD=X_Close',
     prefix+'_Open',prefix+ '_High',prefix+ '_Low',

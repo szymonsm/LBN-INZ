@@ -1,1 +1,0 @@
-modele nauczone lstm
