@@ -1,6 +1,6 @@
 import pandas as pd
 import nltk
-from code.language_models.news_models import BartLargeMNLI, FinBERT, Vader
+from CODE.update_app.code.language_models.news_models import BartLargeMNLI, FinBERT, Vader
 nltk.download('punkt')
 from nltk.tokenize import word_tokenize
 from functools import partial

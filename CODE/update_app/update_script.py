@@ -1,7 +1,7 @@
-from code.news_collector import MarketauxNewsDownloader
-from code.yahoofinanse_downloader import YFinanceDownloader
-from code.news_pipeline import NewsSentimentProcessor
-from code.scripts.essentials import *
+from CODE.update_app.code.news_collector import MarketauxNewsDownloader
+from CODE.update_app.code.yahoofinanse_downloader import YFinanceDownloader
+from CODE.update_app.code.news_pipeline import NewsSentimentProcessor
+from CODE.update_app.code.scripts.essentials import *
 import pandas as pd
 from datetime import datetime, timedelta
 import os

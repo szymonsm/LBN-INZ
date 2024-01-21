@@ -92,7 +92,7 @@ def main():
     #     if df is not None:
     #         df.to_csv(f"DATA/alphavantage/intraday/{ticker}/{ticker}_intraday_{interval}_{month}.csv", index=False)
 
-    ticker = "BA"
+    ticker = "NFLX"
     avspd = AlphaVantageStockPriceDownloader(api_keys, ticker)
     df = avspd.download_daily_ticker_data()
     df.to_csv(f"DATA/alphavantage/daily/{ticker}_daily_full.csv", index=False)

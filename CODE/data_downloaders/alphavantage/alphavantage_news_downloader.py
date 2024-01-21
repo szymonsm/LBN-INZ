@@ -38,8 +38,8 @@ class AlphaVantageNewsDownloader:
         :param limit: int, limit of news per request (max is 1000)
         :return: dict, raw news data
         """
-
-        assert limit<=1000, "AlphaVantage supports news limit up to 1000 per request"
+        if limit > 1000:
+            raise(ValueError("AlphaVantage supports news limit up to 1000 per request"))
 
         begin_date_f = datetime.datetime.strftime(begin_date, "%Y%m%d")
         end_date_f = datetime.datetime.strftime(end_date, "%Y%m%d")
@@ -154,9 +154,10 @@ def main():
     # WARNING!!!: News Data is available only from 01.03.2022 - cannot use data before that
     api_keys = ["BC1SIZ29L8F77M2A"]
     ticker = "BA"
-    begin_date = "20220301"
-    end_date = "20231116"
-    days_per_request = 30
+    begin_date = "20210101"
+    end_date = "20210131"
+    days_per_request = 21
+
 
 
     avnd = AlphaVantageNewsDownloader(api_keys, ticker, begin_date, end_date, days_per_request)
