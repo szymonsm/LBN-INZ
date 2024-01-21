@@ -8,8 +8,8 @@ class BartLargeMNLI:
     Class for BART model that predicts classes of a text. One can use own classes or use the default ones.
     """
 
-    tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large-mnli")
-    model = AutoModelForSequenceClassification.from_pretrained("facebook/bart-large-mnli")
+    # tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large-mnli")
+    # model = AutoModelForSequenceClassification.from_pretrained("facebook/bart-large-mnli")
     def __init__(self):
         self.pipe = None
 
@@ -19,7 +19,7 @@ class BartLargeMNLI:
 
         :param device: int, -1 for CPU, 0 for GPU
         """
-        self.pipe = pipeline("zero-shot-classification", model="facebook/bart-large-mnli", device=device)
+        self.pipe = pipeline("zero-shot-classification", model="facebook/bart-large-mnli", tokenizer="facebook/bart-large-mnli", device=device)
     
     def predict_classes(self, texts: str | list[str], classes: list[str], multi_label: bool = True) -> list:
         """
@@ -33,6 +33,11 @@ class BartLargeMNLI:
         predictions = []
         for text in tqdm.tqdm(texts):
             predictions.append(self.pipe(text, classes, multi_label=multi_label))
+        
+        # save predictions to json
+        import json
+        with open("predictions.json", "w") as f:
+            json.dump(predictions, f)
         return predictions
         # return self.pipe(texts, classes, multi_label=multi_label)
         # return predictions
@@ -51,8 +56,3 @@ class BartLargeMNLI:
         df_bart = df_bart.drop(['labels'], axis=1)
         return pd.concat([df, df_bart], axis=1)
     
-def main():
-    BartLargeMNLI.model.save_pretrained("MODELS/bart-large-mnli/")
-    
-if __name__ == "__main__":
-    main()

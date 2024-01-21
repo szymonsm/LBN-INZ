@@ -93,17 +93,13 @@ def pipeline_train_predict(models, train_set, val_set, horizon, loss_func, model
     val_set_tmp = val_set.iloc[:last_index]
     modelID = 0
     while train_set_tmp.iloc[0]['ds'] < val_set_begin and len(val_set_tmp) == horizon:
-        #print(len(train_set_tmp), len(val_set_tmp))
         loss, predictions_tmp = train(models, train_set_tmp, val_set_tmp, loss_func, model_name)
         predictions_tmp['modelID'] = modelID
         modelID += 1
         losses.append(loss)
         predictions = predictions.append(predictions_tmp) if predictions is not None else predictions_tmp
 
-        # Update sets
-        # append first horizon rows to train_set_tmp from val_set_tmp
         train_set_tmp = train_set_tmp.append(val_set_tmp)
-        # make val_set_tmp start from the next day after the last day of train_set_tmp
         val_set_tmp = val_set.iloc[last_index:last_index+horizon]
         last_index = last_index + horizon
     # Add sequence ID and reset index
@@ -131,7 +127,7 @@ def train(models: list, train_set: pd.DataFrame, val_set: pd.DataFrame, metric_f
     p =  model.predict().reset_index()
     p = p.merge(val_set[['ds','unique_id', 'y']].reset_index(), on=['ds', 'unique_id'], how='left')
 
-    return metric_function(p['y'], p[f'{model_name}-median']), p
+    return metric_function(p['y'], p[f'{model_name}']), p
 
 def create_trial_params(trial, model_name: str):
     if model_name == "TFT":
@@ -142,13 +138,14 @@ def create_trial_params(trial, model_name: str):
       return create_trial_params_nhits(trial)     
 
 
-def objective(trial, train_set, val_set, loss, model_name: str, horizon: int, hist_exog_list: list, max_steps: int, random_seed: int, loss_func: callable, scaler_type = 'standard'):
+def objective(trial, train_set, val_set, loss, model_name: str, h: int, hist_exog_list: list, 
+              max_steps: int, random_seed: int, loss_func: callable, input_size: int, scaler_type = 'standard'):
     model_params = create_trial_params(trial, model_name)
-    # n_blocks = [prms['n_blocks_season'], prms['n_blocks_trend'], prms['n_blocks_ident']]
-    # mlp_units=[[prms['mlp_units'], prms['mlp_units']]*prms['num_hidden']]
-    models = [NAME_MODEL[model_name](h=horizon, input_size=2*horizon, loss=loss, hist_exog_list=hist_exog_list, random_seed=random_seed, scaler_type=scaler_type, max_steps=max_steps, **model_params)]
+    models = [NAME_MODEL[model_name](h=h, input_size=input_size, loss=loss, hist_exog_list=hist_exog_list,
+                                    random_seed=random_seed, scaler_type=scaler_type, 
+                                    max_steps=max_steps, **model_params)]
 
-    losses, predictions = pipeline_train_predict(models, train_set, val_set, horizon, loss_func, model_name)
+    losses, predictions = pipeline_train_predict(models, train_set, val_set, h, loss_func, model_name)
     return np.mean(losses)
 
 

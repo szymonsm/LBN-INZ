@@ -52,7 +52,7 @@ def count_signs_matrix(vector1, vector2):
             matrix[0, 1] += 1
         elif val1 < 0 and val2 > 0:
             matrix[1, 0] += 1
-        elif val1 < 0 and val2 < 0:
+        else:
             matrix[1, 1] += 1
 
     return matrix
