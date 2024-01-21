@@ -3,6 +3,9 @@ import torch
 import pandas as pd
 import os
 
+
+## CLASS WAS CREATED AND TESTED DURING RESEARCH PHASE OF THE PROJECT, BUT WAS NOT USED IN THE END !!!!!!!!!!!!
+
 class TextEmbedder:
 
     def __init__(self, model_name: str, tokenizer_name: str, device: int) -> None:
