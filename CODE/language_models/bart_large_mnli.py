@@ -33,14 +33,8 @@ class BartLargeMNLI:
         predictions = []
         for text in tqdm.tqdm(texts):
             predictions.append(self.pipe(text, classes, multi_label=multi_label))
-        
-        # save predictions to json
-        import json
-        with open("predictions.json", "w") as f:
-            json.dump(predictions, f)
         return predictions
-        # return self.pipe(texts, classes, multi_label=multi_label)
-        # return predictions
+
     
     def add_predictions_to_df(df: pd.DataFrame, predictions: pd.DataFrame, classes: list[str]) -> pd.DataFrame:
         """

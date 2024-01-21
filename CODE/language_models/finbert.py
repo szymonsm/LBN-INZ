@@ -53,14 +53,9 @@ def main() -> None:
     device = -1
 
     finbert = FinBERT(device)
-
-    df = pd.read_csv("DATA/alphavantage/news/BA/BA_20230315_20230430.csv")
-    # predictions = finbert.pipeline_predict_sentiment(list(df["summary"]))
     predictions = finbert.pipeline_predict_sentiment(["Some text"])
     # df_new = FinBERT.add_predictions_to_df(df, predictions)
     # df_new.to_csv("test.csv")
-
-    # FinBERT.model.save_pretrained("MODELS/finbert/")
     
 if __name__ == "__main__":
     main()
