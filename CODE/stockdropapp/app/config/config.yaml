@@ -9,3 +9,6 @@ options:
     - 1 day
     - 1 week
     - 1 month
+api_keys:
+  alphavantage:
+    - NQQYUFL94Q5M3YH2

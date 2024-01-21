@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Cryptocurrency Analysis App</title>
+    <title>SD APP</title>
+    <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}"> -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </head>
 <body>
-    <h1>Cryptocurrency Analysis App</h1>
+    <h1>StockDrop App</h1>
 
     <div>
         <label for="currency">Choose a currency:</label>
@@ -24,7 +26,12 @@
         </select>
     </div>
 
-    <button id="notification_toggle">Enable Notifications</button>
+    <button id="notification_toggle" onclick="startDaemon()">Enable Notifications</button>
+    
+    <h2>Running Daemons</h2>
+    <ul id="running_daemons">
+        <!-- Running daemons will be displayed here -->
+    </ul>
 
     <div id="plot_area">
         <!-- Interactive plot will be displayed here -->
@@ -39,5 +46,8 @@
     </div>
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        updateRunningDaemons();  // Update on page load
+    </script>
 </body>
 </html>

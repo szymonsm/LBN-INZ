@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TABLES in sda_db</title>
+</head>
+<body>
+    <h1>Stock Prices</h1>
+    
+    <table>
+        <tr>
+            {% for column in columns_prices %}
+            <th>{{ column }}</th>
+            {% endfor %}
+        </tr>
+        {% for stock_price in stock_prices %}
+        <tr>
+            <td>{{ stock_price.id }}</td>
+            <td>{{ stock_price.date }}</td>
+            <td>{{ stock_price.open }}</td>
+            <td>{{ stock_price.high }}</td>
+            <td>{{ stock_price.low }}</td>
+            <td>{{ stock_price.close }}</td>
+            <td>{{ stock_price.adj_close }}</td>
+            <td>{{ stock_price.volume }}</td>
+            <td>{{ stock_price.ticker }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h1>News</h1>
+    
+    <table>
+        <tr>
+            {% for column in columns_news %}
+            <th>{{ column }}</th>
+            {% endfor %}
+        </tr>
+        {% for news_ in news %}
+        <tr>
+            <td>{{ news_.id }}</td>
+            <td>{{ news_.uuid }}</td>
+            <td>{{ news_.title }}</td>
+            <td>{{ news_.description }}</td>
+            <td>{{ news_.keywords }}</td>
+            <td>{{ news_.snippet }}</td>
+            <td>{{ news_.url }}</td>
+            <td>{{ news_.image_url }}</td>
+            <td>{{ news_.language }}</td>
+            <td>{{ news_.published_at }}</td>
+            <td>{{ news_.source }}</td>
+            <td>{{ news_.relevance_score }}</td>
+            <td>{{ news_.type }}</td>
+            <td>{{ news_.industry }}</td>
+            <td>{{ news_.match_score }}</td>
+            <td>{{ news_.sentiment_score }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
