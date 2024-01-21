@@ -1,7 +1,7 @@
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import pandas as pd
 import tqdm
-from code.language_models.sentiment_model import SentimentModel
+from CODE.update_app.code.language_models.sentiment_model import SentimentModel
 
 class Vader(SentimentModel):
     """
