@@ -1,5 +1,8 @@
 from CODE.data_downloaders.alphavantage.alphavantage_news_downloader import AlphaVantageNewsDownloader
 from CODE.data_downloaders.alphavantage.alphavantage_stock_price_downloader import AlphaVantageStockPriceDownloader
+from CODE.data_downloaders.yahoofinanse.yahoofinanse_downloader import YFinanceDownloader
+from CODE.model_training.scripts.essentials import calculate_technical_indicators
+
 from unittest import TestCase
 from datetime import date, timedelta, datetime
 
@@ -24,6 +27,25 @@ class AlphaVantageNewsDownloaderTest(TestCase):
         with self.assertRaises(ValueError):
             self.avnd.download_raw_news_data(date(2023, 3, 1), date(2023, 3, 14),2000)
         
-        # Following tests should be
         self.assertGreater(len(self.avnd.download_raw_news_data(date(2023, 3, 1), date(2023, 3, 14))), 1)
-        # self.assertEqual(len(self.avnd.download_raw_news_data(date(2023, 3, 1), date(2023, 2, 28))), 0)
+
+def test_preprocess_data():
+
+    ticker_list = ['BA']
+    begin_date = "20200101"
+    end_date = "20200103"
+
+    df = None
+
+    try:
+        yfd = YFinanceDownloader(ticker_list,begin_date,end_date)
+        df = yfd.create_df()  
+    except:
+        print('Missing YFinance')
+
+    assert df is not None
+
+    df_result = calculate_technical_indicators(df, 'Date', 'BA_Open', 'BA_High', 'BA_Low', 'BA_Close', 'BA_Volume')
+    print(df_result.shape)
+
+    assert df_result.shape == (3,17)

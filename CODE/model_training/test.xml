@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<testsuites>
-    <testsuite name="pytest" errors="0" failures="0" skipped="0" tests="2" time="3.476"
-        timestamp="2023-12-06T23:30:28.498833" hostname="DESKTOP-JDGOUJP">
-        <testcase classname="model_test" name="test_preprocess_data" time="1.119" />
-        <testcase classname="model_test" name="test_predict_data" time="0.143" />
-    </testsuite>
-</testsuites>
