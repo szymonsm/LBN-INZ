@@ -8,8 +8,6 @@ class BartLargeMNLI:
     Class for BART model that predicts classes of a text. One can use own classes or use the default ones.
     """
 
-    # tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large-mnli")
-    # model = AutoModelForSequenceClassification.from_pretrained("facebook/bart-large-mnli")
     def __init__(self):
         self.pipe = None
 
