@@ -14,11 +14,11 @@ class TestUpdateScript(unittest.TestCase):
         """
         self.assertEqual(update_script.update_news(update_script.symbols, update_script.ticker_names, update_script.api_keys, update_github=False), 1)
 
-    # def test_update_finance(self):
-    #     """
-    #     Test for update_finance function
-    #     """
-    #     self.assertEqual(update_script.update_finance(update_script.symbols, update_github=False), 1)
+    def test_update_finance(self):
+        """
+        Test for update_finance function
+        """
+        self.assertEqual(update_script.update_finance(update_script.symbols, update_github=False), 1)
 
     def test_update_processed(self):
         """
