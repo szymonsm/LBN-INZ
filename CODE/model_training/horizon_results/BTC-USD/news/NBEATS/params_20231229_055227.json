@@ -1,0 +1,1 @@
+{"h": 2, "loss": "MSE()", "max_steps": 20, "hist_exog_list": ["finbert_Score", "vader_Score", "mean_influential"], "input_size": 4, "stack_types": ["seasonality", "trend", "identity"], "mlp_units": [[32, 32]], "n_blocks": [3, 2, 2], "learning_rate": 0.05889257708022166, "n_harmonics": 5, "n_polynomials": 3, "scaler_type": "standard", "random_seed": 1}

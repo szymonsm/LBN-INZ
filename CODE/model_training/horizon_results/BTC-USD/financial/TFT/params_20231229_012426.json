@@ -1,0 +1,1 @@
+{"h": 2, "loss": "MSE()", "max_steps": 10, "hist_exog_list": ["norm_rsi_14", "norm_slowk_14", "norm_rsi_gspc_14", "minmax_daily_variation", "minmax_BTC-USD_Volume"], "input_size": 4, "learning_rate": 1.2013651598059773e-05, "hidden_size": 4, "scaler_type": "standard", "random_seed": 1}

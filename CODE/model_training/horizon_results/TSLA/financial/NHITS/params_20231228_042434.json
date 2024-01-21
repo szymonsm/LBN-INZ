@@ -1,0 +1,1 @@
+{"h": 5, "loss": "MSE()", "max_steps": 20, "hist_exog_list": ["norm_rsi_gspc_14", "norm_slowk_14", "minmax_low_norm"], "input_size": 10, "stack_types": ["identity", "identity", "identity"], "mlp_units": [[64, 64], [64, 64], [64, 64]], "n_blocks": [3, 2, 3], "learning_rate": 0.014168241822285722, "n_pool_kernel_size": [3, 2, 3], "scaler_type": "standard", "random_seed": 1}
