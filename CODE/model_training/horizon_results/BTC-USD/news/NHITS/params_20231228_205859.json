@@ -1,0 +1,1 @@
+{"h": 2, "loss": "MSE()", "max_steps": 20, "hist_exog_list": ["finbert_Score", "vader_Score", "mean_influential"], "input_size": 4, "stack_types": ["identity", "identity", "identity"], "mlp_units": [[128, 128], [128, 128], [128, 128]], "n_blocks": [3, 3, 1], "learning_rate": 1.5577066363517048e-05, "n_pool_kernel_size": [1, 2, 2], "scaler_type": "standard", "random_seed": 1}

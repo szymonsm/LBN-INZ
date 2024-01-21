@@ -159,6 +159,7 @@ def main():
     days_per_request = 21
 
 
+
     avnd = AlphaVantageNewsDownloader(api_keys, ticker, begin_date, end_date, days_per_request)
     dict_news = avnd.download_multiple_data()
 

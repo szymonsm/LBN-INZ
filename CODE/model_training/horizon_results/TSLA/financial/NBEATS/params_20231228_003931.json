@@ -1,0 +1,1 @@
+{"h": 2, "loss": "MSE()", "max_steps": 20, "hist_exog_list": ["norm_rsi_gspc_14", "norm_slowk_14", "minmax_low_norm"], "input_size": 4, "stack_types": ["seasonality", "trend", "identity"], "mlp_units": [[32, 32]], "n_blocks": [3, 1, 2], "learning_rate": 1.2810814948552173e-05, "n_harmonics": 1, "n_polynomials": 4, "scaler_type": "standard", "random_seed": 1}

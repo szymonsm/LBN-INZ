@@ -1,0 +1,1 @@
+{"h": 5, "loss": "RMSE()", "max_steps": 25, "hist_exog_list": ["finbert_Score", "bart_Score", "vader_Score", "mean_influential", "mean_trustworthy"], "input_size": 2, "learning_rate": 0.016862610528462666, "hidden_size": 8, "dropout": 0.2823097087712892, "attn_dropout": 0.046743470530910075, "scaler_type": "standard", "random_seed": 1}
