@@ -1,9 +1,10 @@
+'''
+Plik zawiera funkcje pomocnicze, które są wykorzystywane w notebookach.
+'''
 import pandas as pd
 import numpy as np
-from ta.trend import SMAIndicator, EMAIndicator
 from ta.momentum import RSIIndicator, StochasticOscillator, ROCIndicator
 from ta.volume import VolumeWeightedAveragePrice
-
 from sklearn.preprocessing import MinMaxScaler
 import warnings
 
@@ -88,7 +89,73 @@ def split_data(df, date_col, split_date_val, split_date_test, start_date_train=N
 
     return train_data, val_data, test_data
 
+def close_price_statistics_by_year(df1, date_col, close_col, start_date=None, end_date=None):
+    """
+    Extract statistics for the 'Close' column over different time intervals, grouped by year.
+
+    Parameters:
+    - df (pd.DataFrame): The input DataFrame.
+    - date_col (str): Column name for the date.
+    - close_col (str): Column name for the 'Close' prices.
+    - start_date (str or None): Start date for statistics (format: 'YYYY-MM-DD').
+    - end_date (str or None): End date for statistics (format: 'YYYY-MM-DD').
+
+    Returns:
+    - pd.DataFrame: DataFrame with statistics for the 'Close' column, each row representing a year.
+    """
+    # Ensure the DataFrame is sorted by date
+    df = df1.copy()
+    df.sort_values(by=date_col, inplace=True)
+
+    # Filter data based on the specified date range
+    if start_date is not None and end_date is not None:
+        df = df[(df[date_col] >= start_date) & (df[date_col] <= end_date)]
+
+    # Extract date and close columns
+    date_series = df[date_col]
+    close_series = df[close_col]
+
+    # Extract year from the date
+    df['Year'] = pd.to_datetime(df[date_col]).dt.year
+
+    # Calculate mean absolute difference for different time intervals
+    one_day_diff = close_series.diff(1).abs()
+    one_week_diff = close_series.diff(5).abs()
+    two_weeks_diff = close_series.diff(10).abs()
+    one_month_diff = close_series.diff(20).abs()
+    two_months_diff = close_series.diff(40).abs()
+
+    # Group by year and calculate statistics
+    grouped_stats = df.groupby('Year')[close_col].agg([
+        ('Min', 'min'),
+        ('Max', 'max'),
+        ('Mean', 'mean'),
+        ('Std', 'std'),
+        ('Percentile_25', lambda x: np.percentile(x, 25)),
+        ('Percentile_50', lambda x: np.percentile(x, 50)),
+        ('Percentile_75', lambda x: np.percentile(x, 75)),
+        ('Mean_Abs_Diff_1D', lambda x: one_day_diff[x.index].mean()),
+        ('Mean_Abs_Diff_1W', lambda x: one_week_diff[x.index].mean()),
+        ('Mean_Abs_Diff_2W', lambda x: two_weeks_diff[x.index].mean()),
+        ('Mean_Abs_Diff_1M', lambda x: one_month_diff[x.index].mean()),
+        ('Mean_Abs_Diff_2M', lambda x: two_months_diff[x.index].mean())
+    ]).reset_index()
+
+    return grouped_stats
+
 def create_merged_df(df_f, df_n, prefix):
+    """
+    Merge the stock and news DataFrames.
+
+    Parameters:
+    - df_f (pd.DataFrame): The stock DataFrame.
+    - df_n (pd.DataFrame): The news DataFrame.
+    - prefix (str): Prefix for the news columns.
+
+    Returns:
+    - pd.DataFrame: The merged DataFrame.
+    """
+
     cols_to_keep=['Date', '^GSPC_Close', '^GSPC_Volume','EURUSD=X_Close',
     prefix+'_Open',prefix+ '_High',prefix+ '_Low',
     prefix+'_Close',prefix+ '_Volume']
@@ -133,8 +200,6 @@ def calculate_technical_indicators(stock_df, date_col, open_col, high_col, low_c
     df.set_index(date_col, inplace=True)
 
     # Calculate technical indicators
-    #df['sma_50'] = SMAIndicator(fillna=True,close=np.log(df[close_col]), window=50).sma_indicator()
-    #df['ema_20'] = EMAIndicator(fillna=True,close=np.log(df[close_col]), window=20).ema_indicator()
     df['norm_rsi_14'] = RSIIndicator(fillna=True,close=df[close_col], window=14).rsi()/100
     
     df['norm_rsi_gspc_14'] = RSIIndicator(fillna=True,close=df[gspc_close], window=14).rsi()/100
@@ -204,20 +269,6 @@ def get_calculated_features(df, date_col, open_col, high_col, low_col, close_col
 
     # Price Change
     df['Price_Change'] = df[close_col]- df[close_col].shift(1)
-
-    # # Weekday (weekday/4)
-    # df[date_col] = pd.to_datetime(df[date_col])
-    # df['weekday'] = df[date_col].dt.weekday/4
-
-    # # Year Progress (month/12)
-    # df['month'] = df[date_col].dt.month
-    # df['Year_Progress'] = df['month'] / 12
-
-    # # Month Progress (day/31)
-    # df['day'] = df[date_col].dt.day
-    # df['Month_Progress'] = np.round(df['day'] / 31, 2)
-
-    # df.drop(columns=['month','day'], inplace=True)
 
     return df
 
