@@ -26,7 +26,7 @@ class MarketauxNewsDownloader:
         self.ticker_name = ticker_name
         self.begin_date = datetime.datetime.strptime(begin_date, "%Y-%m-%d")
         self.end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d")
-        if self.end_date < self.begin_date:
+        if self.end_date <= self.begin_date:
             raise ValueError("End date must be greater than begin date")
         if self.end_date > datetime.datetime.now():
             raise ValueError("End date must be less or equal than current date")

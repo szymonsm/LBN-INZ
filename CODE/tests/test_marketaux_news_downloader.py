@@ -1,4 +1,4 @@
-from CODE.data_downloaders.marketaux.marketaux_news_downloader import MarketauxNewsDownloader
+from CODE.update_app.code.news_collector import MarketauxNewsDownloader
 from unittest import TestCase
 from datetime import date, timedelta, datetime
 
