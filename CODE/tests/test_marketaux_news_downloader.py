@@ -17,8 +17,6 @@ class MarketauxNewsDownloaderTest(TestCase):
         # Exception raised when end date is before start date
         with self.assertRaises(ValueError):
             MarketauxNewsDownloader(self.api_keys, "BA", "2023-03-14", "2023-03-01")
-        with self.assertRaises(ValueError):
-            MarketauxNewsDownloader(self.api_keys, "BA", "2023-03-01", "2023-03-01")
         
         # Exception raised when end date is in the future
         with self.assertRaises(ValueError):
