@@ -1,19 +1,20 @@
 # LBN-INZ
 
-!!! Jeżeli macie problemy z importem, wrzucić tę linijkę do terminala: $env:PYTHONPATH += "path_to_project_root"
+**Zastosowanie Modeli do Sentymentu Tekstu i Szeregów Czasowych w Analizie Giełdowej**
 
-Alerting System for Share Price Drops Using a Language Model and Stock Prices Analysis - Bachelor of Science - Wojciech Kosiuk | Szymon Matuszewski | Michał Mazuryk
+Repozytorium Pracy Inżynierskiej studentów: Wojciecha Kosiuka, Szymona Matuszewskiego, Michała Mazuryka
+Politechnika Warszawska | Wydział Matematyki i Nauk Informacyjnych
 
-## Folder Description
-* CODE - a folder with code \
-        |--language_models - folder with classes for language models
-        |--data_downloaders - a folder with data donwloaders enabling to get necessary data
-* DATA - a folder with the data used in the modelling \
-        |--news - data with news \
-        |--daily - data with daily stock prices
-        |--intraday - data with 1,5,15,30,60 minute intervals of stockprices
+## Opis głównych folderów
+* CODE - folder zawierający kod do modelowania sentymentalnego, szeregów czasowych, aplikacji oraz modułu odświeżania danych
+* DATA - folder zawierający potrzebne dane 
 
-* INFO - a folder with information about the thesis final exam with helpful information \
-        |--bibliography -  afolder with bibliography references \
-        |--requirements - all information about the requirements of the thesis diploma
-* THESIS - a folder with the thesis paper
+## Instrukacja instalacji Willingen Stock Dashboard
+ ```
+1. cd CODE/WillingenStockDashboard
+2. pip install -r requirements.txt
+3. python app.py
+ ```
+ Przejdź na stronę http://127.0.0.1:8050/ i korzystaj z aplikacji.
+
+ *Uwaga:* plik CODE/requirements.txt zawiera wymagane pakiety używane podczas całej pracy.

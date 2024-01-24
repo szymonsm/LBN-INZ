@@ -18,6 +18,12 @@ Struktura plików w MODEL_TRAINING:
 
     - folder scripts - zawiera skrypty pomocnicze
 
+    - folder horizon_results - zawiera wyniki z modelowania horyzontalnego modeli NBEATSx, NHITS, TFT
+
     - eda.ipynb - notebook ze wstępną analizą danych i utworzeniem wykresów do pracy
 
     - results_lstm.ipynb - notebook z testowaniem strategii inwestycyjnej i końcowym podsumowaniem wyników dla modeli z LSTM
+
+    - horizon_train_main.ipynb - notebook służący do modelowania horyzontalnego
+
+    - horizon_results_main.ipynb - notebook do policzenia wyników oraz strategii
