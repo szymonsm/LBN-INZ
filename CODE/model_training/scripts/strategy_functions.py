@@ -63,6 +63,6 @@ def calculate_return(df, intrest, thr_p, thr_m):
                 return_list.append(money_prc)
 
     if return_list:
-        return np.mean(return_list), return_list
+        return np.sum(return_list), return_list
     else:
         return -0.50, None
