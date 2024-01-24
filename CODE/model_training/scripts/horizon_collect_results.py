@@ -1,7 +1,7 @@
 '''
 Funkcje pomocnicze do analizy wyników modeli horizonowych.
 '''
-from CODE.model_training.scripts.horizon_model_training import *
+from scripts.horizon_model_training import *
 import pandas as pd
 import numpy as np
 import json
@@ -240,13 +240,13 @@ def calculate_return(df, intrest, thr_p, thr_m):
             return_list.append(money_prc)
 
     if return_list:
-        return np.mean(return_list), return_list
+        return np.sum(return_list), return_list
     else:
         return -0.50, None
 
 def objective(trial, df, intrest):
-    thr_p = trial.suggest_uniform('thr_p', 0.0001, 20)
-    thr_m = trial.suggest_uniform('thr_m', -20, -0.0001)
+    thr_p = trial.suggest_uniform('thr_p', 0.001, 10)
+    thr_m = trial.suggest_uniform('thr_m', -10, -0.001)
     # idx_trust = trial.suggest_int('idx_trust', 0, horizon)
 
     mean_return, _ = calculate_return(df, intrest, thr_p, thr_m)

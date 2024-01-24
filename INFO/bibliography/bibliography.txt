@@ -1,7 +1,0 @@
-'A Stochastic Time Series Model for Predicting Financial
-Trends using NLP' 
-- https://arxiv.org/pdf/2102.01290.pdf - wykresy, metryki, sentiment, GAN, LSTM
-
-'A deep learning approach using natural language processing 
-and time-series forecasting towards enhanced food safety' 
--https://link.springer.com/content/pdf/10.1007/s10994-022-06151-6.pdf?pdf=button - NLP, RL

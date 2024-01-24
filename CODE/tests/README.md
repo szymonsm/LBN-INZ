@@ -1,0 +1,1 @@
+Pliki .py służące do testowania poszczególnych modułów
