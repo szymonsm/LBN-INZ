@@ -1,0 +1,1 @@
+Plik znajdujący się w tym podfolderze zawiera wszystkie dane finansowe dla wszysktich aktywów w jednym pliku .csv.
